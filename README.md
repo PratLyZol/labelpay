@@ -123,6 +123,19 @@ No domain needed: the script defaults to `<public-ip>.sslip.io`, a free wildcard
 issues a Let's Encrypt cert for it. If you claim the free `.tech` domain from the MLH prize page,
 point its A record at the VM and pass it as the second argument instead.
 
+## Continuous deployment
+
+`.github/workflows/deploy.yml` runs on every push to `main`: it SSHes into the Vultr box, resets
+`/opt/labelpay` to `origin/main`, rebuilds the container, runs the idempotent migration and routing,
+and checks `/api/stats` comes back 200. One-time setup:
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/labelpay_deploy -N "" -C labelpay-deploy
+ssh-copy-id -i ~/.ssh/labelpay_deploy.pub root@<server-ip>
+gh secret set VULTR_HOST --body <server-ip>
+gh secret set VULTR_SSH_KEY < ~/.ssh/labelpay_deploy
+```
+
 ## Scripts
 
 `pnpm dev` · `pnpm build` · `pnpm db:migrate` · `pnpm db:seed` · `pnpm route` · `pnpm db:reset` · `pnpm images` ·

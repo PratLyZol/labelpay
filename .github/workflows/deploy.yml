@@ -1,0 +1,52 @@
+name: Deploy to Vultr
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Set up SSH
+        env:
+          SSH_KEY: ${{ secrets.VULTR_SSH_KEY }}
+          HOST: ${{ secrets.VULTR_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Pull, rebuild, migrate, route
+        env:
+          HOST: ${{ secrets.VULTR_HOST }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "root@$HOST" bash -s <<'REMOTE'
+            set -euo pipefail
+            cd /opt/labelpay
+            git fetch --quiet origin main
+            git reset --hard origin/main --quiet
+            docker compose up -d --build app
+            docker compose exec -T app node node_modules/tsx/dist/cli.mjs scripts/migrate.ts | tail -2
+            docker compose exec -T app node node_modules/tsx/dist/cli.mjs scripts/route.ts | tail -1
+            docker image prune -f >/dev/null
+            echo "deployed $(git rev-parse --short HEAD)"
+          REMOTE
+
+      - name: Smoke check
+        env:
+          HOST: ${{ secrets.VULTR_HOST }}
+        run: |
+          for i in $(seq 1 20); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://$HOST.sslip.io/api/stats" || true)
+            [ "$code" = "200" ] && echo "ok: /api/stats 200" && exit 0
+            sleep 3
+          done
+          echo "site did not come back"; exit 1
