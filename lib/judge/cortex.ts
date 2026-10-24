@@ -51,7 +51,12 @@ function headers() {
 export async function cortexJson<T>(opts: CortexOptions): Promise<{ data: T; ms: number; model: string; raw: string; transport: Transport }> {
   const model = opts.model ?? env.JUDGE_MODEL;
   const forced = process.env.CORTEX_TRANSPORT as Transport | undefined;
-  const candidates = forced && ORDER.includes(forced) ? [forced] : globalThis.__cortexTransport ? [globalThis.__cortexTransport] : ORDER;
+  const hasImage = opts.messages.some((message) => Array.isArray(message.content) && message.content.some((part) => part.type === "image_url"));
+  if (hasImage && forced && forced !== "chat") {
+    throw new Error(`CORTEX_TRANSPORT=${forced} cannot inspect images; use chat for image tasks`);
+  }
+  // Inference and SQL only receive flattened text. Never silently judge an image without seeing it.
+  const candidates = hasImage ? ["chat" as Transport] : forced && ORDER.includes(forced) ? [forced] : globalThis.__cortexTransport ? [globalThis.__cortexTransport] : ORDER;
   let lastErr: unknown;
   for (const t of candidates) {
     const t0 = Date.now();

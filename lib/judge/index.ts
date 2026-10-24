@@ -30,6 +30,9 @@ export async function monitorLabel(set: TaskSet, task: Task, answer: string): Pr
 
   const flags: Flag[] = [];
   const imageDataUrl = await imageFor(set, task, flags);
+  if (set.type === "image" && !imageDataUrl) {
+    return { verdict: null, ms: 0, model: null, flags: [...flags, "judge_unavailable"] };
+  }
   const base = {
     type: set.type,
     title: set.title,
@@ -46,15 +49,7 @@ export async function monitorLabel(set: TaskSet, task: Task, answer: string): Pr
     return { verdict: data, ms, model, flags };
   } catch (e) {
     console.error("[monitor] cortex failed:", (e as Error).message);
-    if (imageDataUrl) {
-      try {
-        const { data, ms, model } = await cortexJson<MonitorVerdict>({ messages: buildMonitorMessages(base), schemaName: "monitor_verdict", schema: MONITOR_SCHEMA });
-        return { verdict: data, ms, model, flags: [...flags, "vision_unavailable"] };
-      } catch (e2) {
-        console.error("[monitor] text-only retry failed:", (e2 as Error).message);
-      }
-    }
-    return { verdict: null, ms: 0, model: null, flags: [...flags, "judge_unavailable"] };
+    return { verdict: null, ms: 0, model: null, flags: [...flags, ...(imageDataUrl ? ["vision_unavailable" as Flag] : []), "judge_unavailable"] };
   }
 }
 
@@ -63,6 +58,7 @@ export async function routeTask(set: TaskSet, task: Task): Promise<RoutingResult
   if (env.JUDGE_MOCK) return mockRoute(set, task);
   const flags: Flag[] = [];
   const imageDataUrl = await imageFor(set, task, flags);
+  if (set.type === "image" && !imageDataUrl) throw new Error(`Image unavailable for task ${task.id}`);
   const { data, ms, model } = await cortexJson<RoutingResult>({
     messages: buildRoutingMessages({ type: set.type, title: set.title, guidelines: set.guidelines, options: set.options, payload: task.payload, imageDataUrl }),
     schemaName: "routing",

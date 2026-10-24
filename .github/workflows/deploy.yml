@@ -10,7 +10,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm build
+
   deploy:
+    needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -27,16 +45,19 @@ jobs:
       - name: Pull, rebuild, migrate, route
         env:
           HOST: ${{ secrets.VULTR_HOST }}
+          SHA: ${{ github.sha }}
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "root@$HOST" \
-            'cd /opt/labelpay && git fetch --quiet origin main && git reset --hard origin/main --quiet && bash deploy/update.sh'
+            "cd /opt/labelpay && git fetch --quiet origin $SHA && git reset --hard $SHA --quiet && bash deploy/update.sh"
 
       - name: Smoke check
         env:
           HOST: ${{ secrets.VULTR_HOST }}
+          DOMAIN: ${{ secrets.VULTR_DOMAIN }}
         run: |
+          DOMAIN=${DOMAIN:-$HOST.sslip.io}
           for i in $(seq 1 20); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "https://$HOST.sslip.io/api/stats" || true)
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://$DOMAIN/api/stats" || true)
             [ "$code" = "200" ] && echo "ok: /api/stats 200" && exit 0
             sleep 3
           done

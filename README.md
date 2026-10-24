@@ -49,7 +49,8 @@ Without `TREASURY_SECRET_KEY` payouts are recorded as `mock` transactions. The w
 | `ALLOW_INSECURE_LOGIN` | `1` only for local curl testing (skips wallet signature check). Keep `0` in production |
 
 Smoke-test the judge once credentials are in: `pnpm cortex:smoke` (runs a text verdict and a vision
-verdict; if vision fails the app automatically falls back to text-only + gold labels for images).
+verdict). Image judgments require the chat transport. If it is unavailable, image tasks stay with
+humans and the monitor reports that vision is unavailable; hidden reference checks still apply.
 
 ### Demo script
 
@@ -126,8 +127,9 @@ point its A record at the VM and pass it as the second argument instead.
 ## Continuous deployment
 
 `.github/workflows/deploy.yml` runs on every push to `main`: it SSHes into the Vultr box, resets
-`/opt/labelpay` to `origin/main`, rebuilds the container, runs the idempotent migration and routing,
-and checks `/api/stats` comes back 200. One-time setup:
+`/opt/labelpay` to `origin/main` after typecheck, lint, and build pass, rebuilds the container, runs
+the idempotent migration and routing, and checks `/api/stats` comes back 200. If you use a custom
+domain, set the optional `VULTR_DOMAIN` GitHub secret to that hostname. One-time setup:
 
 ```bash
 ssh-keygen -t ed25519 -f ~/.ssh/labelpay_deploy -N "" -C labelpay-deploy

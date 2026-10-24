@@ -36,7 +36,7 @@ async function main() {
         imageDataUrl: `data:image/jpeg;base64,${img.toString("base64")}`,
       }),
     });
-    console.log("VISION", vision.ms + "ms", vision.model, "via", vision.transport, JSON.stringify(vision.data), vision.transport === "chat" ? "" : "(image dropped: transport is text-only)");
+    console.log("VISION", vision.ms + "ms", vision.model, "via", vision.transport, JSON.stringify(vision.data));
   } catch (e) {
     console.log("VISION unsupported or failed:", (e as Error).message.slice(0, 300));
   }
