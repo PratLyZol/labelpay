@@ -52,7 +52,7 @@ export default function PaymentsPage() {
         </p>
       )}
 
-      <h2 className="mb-3 mt-10 text-2xl font-semibold tracking-tight">Transactions</h2>
+      <h2 className="font-pixel mb-3 mt-10 text-[28px]">Transactions</h2>
       <div className="overflow-hidden rounded-2xl border">
         <table className="w-full text-[15px]">
           <thead className="bg-muted/60 text-left text-sm text-muted-foreground">

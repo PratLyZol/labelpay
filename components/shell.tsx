@@ -25,14 +25,13 @@ export function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
       <aside className="hidden w-60 shrink-0 flex-col border-r bg-sidebar px-3 py-4 md:flex">
-        <Link href="/" className="mb-5 flex items-center gap-2 px-2">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#14f195,#9945ff)] text-base font-black text-white shadow-sm">L</span>
-          <span className="text-sm font-semibold tracking-tight">Label<span className="text-primary">Pay</span></span>
+        <Link href="/" className="font-pixel mb-5 px-3 text-xl">
+          Label<span className="text-primary">Pay</span>
         </Link>
         <nav className="flex flex-1 flex-col gap-5 text-[15px]">
           {NAV.map((g, gi) => (
             <div key={gi} className="space-y-0.5">
-              {g.group && <p className="mb-1 px-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">{g.group}</p>}
+              {g.group && <p className="eyebrow mb-1 px-3 text-muted-foreground">{g.group}</p>}
               {g.items.map((it) => {
                 const active = pathname === it.href && !(gi === 0 && pathname === "/" && false);
                 const isHomeDup = gi === 0 && it.href === "/";
@@ -56,10 +55,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b bg-background/90 px-6 backdrop-blur">
           <div className="flex items-center gap-3">
-            <Link href="/" className="md:hidden">
-              <span className="flex size-8 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#14f195,#9945ff)] text-sm font-black text-white">L</span>
+            <Link href="/" className="font-pixel md:hidden">
+              Label<span className="text-primary">Pay</span>
             </Link>
-            <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+            <h1 className="font-pixel text-2xl">{title}</h1>
           </div>
           <div className="flex items-center gap-4 text-[15px]">
             <nav className="hidden items-center gap-1 md:flex">

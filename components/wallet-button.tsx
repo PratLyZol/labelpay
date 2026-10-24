@@ -24,6 +24,8 @@ export function WalletButton() {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const address = connected ? String(connected.account.address) : null;
   const signedIn = !!session.wallet && session.wallet === address;
@@ -62,6 +64,8 @@ export function WalletButton() {
     void disconnect.dispatch();
     setOpen(false);
   }
+
+  if (!mounted) return <Button disabled>Connect wallet</Button>;
 
   return (
     <div className="relative">

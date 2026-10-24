@@ -78,11 +78,29 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-pixel: var(--font-pixel), var(--font-geist-mono), ui-monospace, monospace;
 }
 
 @layer base {
   * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground; }
+  body { @apply bg-background text-foreground; font-family: var(--font-sans); }
+  h1, h2, h3 { letter-spacing: -0.02em; }
+}
+
+@utility font-pixel {
+  font-family: var(--font-pixel);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }

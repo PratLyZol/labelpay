@@ -31,11 +31,11 @@ interface LastResult {
 export default function LabelPage() {
   const { session, refresh } = useSession();
   const [task, setTask] = useState<ServedTask | null>(null);
-  const [filter, setFilter] = useState<Filter>(() => {
-    if (typeof window === "undefined") return "all";
+  const [filter, setFilter] = useState<Filter>("all");
+  useEffect(() => {
     const t = new URLSearchParams(window.location.search).get("type");
-    return t === "text" || t === "pairwise" || t === "image" ? t : "all";
-  });
+    if (t === "text" || t === "pairwise" || t === "image") setFilter(t);
+  }, []);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [last, setLast] = useState<LastResult | null>(null);

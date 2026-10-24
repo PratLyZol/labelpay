@@ -49,7 +49,7 @@ export default function ProjectsPage() {
     <div className="grid min-h-full lg:grid-cols-[1fr_380px]">
       <section className="px-6 py-8 lg:px-8">
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold tracking-tight">Your projects</h2>
+          <h2 className="font-pixel text-[28px] md:text-[34px]">Your projects</h2>
           <div className="flex rounded-xl bg-muted p-1 text-sm">
             {(["current", "done"] as const).map((t) => (
               <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-lg px-4 py-1.5 capitalize transition ${tab === t ? "bg-background font-medium shadow-sm" : "text-muted-foreground"}`}>
@@ -70,7 +70,8 @@ export default function ProjectsPage() {
               <article key={p.id} className="rounded-2xl border bg-card p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="text-lg font-semibold tracking-tight">{p.title}</h3>
+                    <p className="eyebrow text-muted-foreground">{p.type} task</p>
+                    <h3 className="mt-1 text-xl font-semibold">{p.title}</h3>
                     <p className="mt-1 text-[15px] text-muted-foreground">
                       {sol(p.pay_lamports, 3)}/task · Devnet · Per-label
                     </p>
@@ -116,7 +117,7 @@ export default function ProjectsPage() {
           </div>
         )}
 
-        <h2 className="mb-2 mt-14 text-2xl font-semibold tracking-tight">Frequently asked questions</h2>
+        <h2 className="font-pixel mb-2 mt-14 text-[28px] md:text-[34px]">Frequently asked questions</h2>
         <div className="divide-y">
           {FAQ.map((f, i) => (
             <div key={f.q} className="py-4">

@@ -15,7 +15,7 @@ export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit:
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">{task.type} · {task.title}</p>
+          <p className="eyebrow text-muted-foreground">{task.type} · {task.title}</p>
           <p className="mt-1 text-sm text-muted-foreground">{task.guidelines}</p>
         </div>
         <span className="shrink-0 rounded-md bg-accent px-2 py-1 text-xs font-medium text-accent-foreground">base {sol(task.payLamports, 3)}</span>
