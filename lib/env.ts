@@ -1,6 +1,12 @@
+function normalizeUrl(u: string) {
+  const t = u.trim().replace(/\/+$/, "");
+  if (!t) return "";
+  return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+}
+
 export const env = {
   DATABASE_URL: process.env.DATABASE_URL ?? "",
-  SNOWFLAKE_ACCOUNT_URL: (process.env.SNOWFLAKE_ACCOUNT_URL ?? "").replace(/\/$/, ""),
+  SNOWFLAKE_ACCOUNT_URL: normalizeUrl(process.env.SNOWFLAKE_ACCOUNT_URL ?? ""),
   SNOWFLAKE_PAT: process.env.SNOWFLAKE_PAT ?? "",
   JUDGE_MODEL: process.env.JUDGE_MODEL ?? "claude-haiku-4-5",
   AUDIT_MODEL: process.env.AUDIT_MODEL ?? "claude-sonnet-4-5",
