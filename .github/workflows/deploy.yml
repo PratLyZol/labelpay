@@ -28,17 +28,8 @@ jobs:
         env:
           HOST: ${{ secrets.VULTR_HOST }}
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "root@$HOST" bash -s <<'REMOTE'
-            set -euo pipefail
-            cd /opt/labelpay
-            git fetch --quiet origin main
-            git reset --hard origin/main --quiet
-            docker compose up -d --build app
-            docker compose exec -T app node node_modules/tsx/dist/cli.mjs scripts/migrate.ts | tail -2
-            docker compose exec -T app node node_modules/tsx/dist/cli.mjs scripts/route.ts | tail -1
-            docker image prune -f >/dev/null
-            echo "deployed $(git rev-parse --short HEAD)"
-          REMOTE
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "root@$HOST" \
+            'cd /opt/labelpay && git fetch --quiet origin main && git reset --hard origin/main --quiet && bash deploy/update.sh'
 
       - name: Smoke check
         env:

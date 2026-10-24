@@ -38,8 +38,8 @@ fi
 grep -q '^DOMAIN=' .env || echo "DOMAIN=$DOMAIN" >> .env
 
 docker compose up -d --build
-docker compose exec -T app node node_modules/tsx/dist/cli.mjs scripts/migrate.ts
-docker compose exec -T app node node_modules/tsx/dist/cli.mjs scripts/seed.ts
+docker compose exec -T app node node_modules/tsx/dist/cli.mjs scripts/migrate.ts </dev/null
+docker compose exec -T app node node_modules/tsx/dist/cli.mjs scripts/seed.ts </dev/null
 echo ">> Routing tasks through the first-pass model (only unrouted ones)..."
-docker compose exec -T app node node_modules/tsx/dist/cli.mjs scripts/route.ts | tail -3
+docker compose exec -T app node node_modules/tsx/dist/cli.mjs scripts/route.ts </dev/null | tail -3
 echo ">> Live at https://$DOMAIN"
