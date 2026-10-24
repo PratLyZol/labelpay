@@ -1,0 +1,152 @@
+[
+  {
+    "src": "/img/cat-1.jpg",
+    "gold": "cat",
+    "alt": "photo 1"
+  },
+  {
+    "src": "/img/cat-2.jpg",
+    "gold": "cat",
+    "alt": "photo 2"
+  },
+  {
+    "src": "/img/cat-3.jpg",
+    "gold": "cat",
+    "alt": "photo 3"
+  },
+  {
+    "src": "/img/cat-4.jpg",
+    "gold": "cat",
+    "alt": "photo 4"
+  },
+  {
+    "src": "/img/cat-5.jpg",
+    "gold": "cat",
+    "alt": "photo 5"
+  },
+  {
+    "src": "/img/dog-1.jpg",
+    "gold": "dog",
+    "alt": "photo 1"
+  },
+  {
+    "src": "/img/dog-2.jpg",
+    "gold": "dog",
+    "alt": "photo 2"
+  },
+  {
+    "src": "/img/dog-3.jpg",
+    "gold": "dog",
+    "alt": "photo 3"
+  },
+  {
+    "src": "/img/dog-4.jpg",
+    "gold": "dog",
+    "alt": "photo 4"
+  },
+  {
+    "src": "/img/dog-5.jpg",
+    "gold": "dog",
+    "alt": "photo 5"
+  },
+  {
+    "src": "/img/bird-1.jpg",
+    "gold": "bird",
+    "alt": "photo 1"
+  },
+  {
+    "src": "/img/bird-2.jpg",
+    "gold": "bird",
+    "alt": "photo 2"
+  },
+  {
+    "src": "/img/bird-3.jpg",
+    "gold": "bird",
+    "alt": "photo 3"
+  },
+  {
+    "src": "/img/bird-4.jpg",
+    "gold": "bird",
+    "alt": "photo 4"
+  },
+  {
+    "src": "/img/bird-5.jpg",
+    "gold": "bird",
+    "alt": "photo 5"
+  },
+  {
+    "src": "/img/car-1.jpg",
+    "gold": "car",
+    "alt": "photo 1"
+  },
+  {
+    "src": "/img/car-2.jpg",
+    "gold": "car",
+    "alt": "photo 2"
+  },
+  {
+    "src": "/img/car-3.jpg",
+    "gold": "car",
+    "alt": "photo 3"
+  },
+  {
+    "src": "/img/car-4.jpg",
+    "gold": "car",
+    "alt": "photo 4"
+  },
+  {
+    "src": "/img/car-5.jpg",
+    "gold": "car",
+    "alt": "photo 5"
+  },
+  {
+    "src": "/img/bicycle-1.jpg",
+    "gold": "bicycle",
+    "alt": "photo 1"
+  },
+  {
+    "src": "/img/bicycle-2.jpg",
+    "gold": "bicycle",
+    "alt": "photo 2"
+  },
+  {
+    "src": "/img/bicycle-3.jpg",
+    "gold": "bicycle",
+    "alt": "photo 3"
+  },
+  {
+    "src": "/img/bicycle-4.jpg",
+    "gold": "bicycle",
+    "alt": "photo 4"
+  },
+  {
+    "src": "/img/bicycle-5.jpg",
+    "gold": "bicycle",
+    "alt": "photo 5"
+  },
+  {
+    "src": "/img/airplane-1.jpg",
+    "gold": "airplane",
+    "alt": "photo 1"
+  },
+  {
+    "src": "/img/airplane-2.jpg",
+    "gold": "airplane",
+    "alt": "photo 2"
+  },
+  {
+    "src": "/img/airplane-3.jpg",
+    "gold": "airplane",
+    "alt": "photo 3"
+  },
+  {
+    "src": "/img/airplane-4.jpg",
+    "gold": "airplane",
+    "alt": "photo 4"
+  },
+  {
+    "src": "/img/airplane-5.jpg",
+    "gold": "airplane",
+    "alt": "photo 5"
+  }
+]
