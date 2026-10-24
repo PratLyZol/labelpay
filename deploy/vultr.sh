@@ -3,6 +3,14 @@
 #   bash vultr.sh <git-repo-url> [domain]
 # With no domain, uses <public-ip>.sslip.io (free wildcard DNS) so Caddy can still issue a real cert.
 set -euo pipefail
+if [ "$(uname -s)" != "Linux" ] || ! command -v apt-get >/dev/null; then
+  echo "This script runs ON the Vultr Ubuntu server, not on your laptop."
+  echo "  1. Vultr console -> Deploy -> Cloud Compute, Ubuntu 24.04, any region"
+  echo "  2. ssh root@<server-ip>"
+  echo "  3. curl -fsSL https://raw.githubusercontent.com/PratLyZol/labelpay/main/deploy/vultr.sh -o vultr.sh && bash vultr.sh https://github.com/PratLyZol/labelpay.git"
+  exit 1
+fi
+if [ "$(id -u)" -ne 0 ]; then echo "Run as root (sudo -i)."; exit 1; fi
 REPO="${1:?git repo url}"
 DOMAIN="${2:-}"
 if [ -z "$DOMAIN" ]; then
