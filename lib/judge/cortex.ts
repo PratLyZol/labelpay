@@ -130,8 +130,10 @@ async function viaInference(model: string, opts: CortexOptions): Promise<string>
 async function viaSql(model: string, opts: CortexOptions): Promise<string> {
   // Positional args with explicit casts: named args with bound VARIANTs make Snowflake report
   // "More than one function of AI_COMPLETE are resolved in prepare state".
-  // Single-string prompt: the multi-message (ARRAY) form is "not available for trial accounts".
-  const statement = `SELECT AI_COMPLETE(?::VARCHAR, ?::VARCHAR, PARSE_JSON(?)::OBJECT, PARSE_JSON(?)::OBJECT) AS r`;
+  // Trial accounts only allow the plain two-argument COMPLETE(model, prompt): every variant with
+  // model_parameters / response_format / message arrays fails with "not available for trial accounts".
+  // So the JSON schema is spelled out in the prompt and parsed from the reply.
+  const statement = `SELECT SNOWFLAKE.CORTEX.COMPLETE(?::VARCHAR, ?::VARCHAR) AS r`;
   const res = await fetch(`${env.SNOWFLAKE_ACCOUNT_URL}/api/v2/statements?async=false`, {
     method: "POST",
     headers: headers(),
@@ -141,9 +143,7 @@ async function viaSql(model: string, opts: CortexOptions): Promise<string> {
       warehouse: env.SNOWFLAKE_WAREHOUSE,
       bindings: {
         "1": { type: "TEXT", value: model },
-        "2": { type: "TEXT", value: toSinglePrompt(opts.messages) },
-        "3": { type: "TEXT", value: JSON.stringify({ temperature: opts.temperature ?? 0, max_tokens: opts.maxTokens ?? 400 }) },
-        "4": { type: "TEXT", value: JSON.stringify({ type: "json", schema: opts.schema }) },
+        "2": { type: "TEXT", value: `${toSinglePrompt(opts.messages)}\n\nRespond with ONLY a single JSON object (no prose, no code fences) that matches this JSON schema:\n${JSON.stringify(opts.schema)}` },
       },
     }),
     signal: AbortSignal.timeout(60_000),
