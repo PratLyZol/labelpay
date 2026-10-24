@@ -133,7 +133,7 @@ async function viaSql(model: string, opts: CortexOptions): Promise<string> {
   // Trial accounts only allow the plain two-argument COMPLETE(model, prompt): every variant with
   // model_parameters / response_format / message arrays fails with "not available for trial accounts".
   // So the JSON schema is spelled out in the prompt and parsed from the reply.
-  const statement = `SELECT SNOWFLAKE.CORTEX.COMPLETE(?::VARCHAR, ?::VARCHAR) AS r`;
+  const statement = `SELECT AI_COMPLETE(?::VARCHAR, ?::VARCHAR) AS r`;
   const res = await fetch(`${env.SNOWFLAKE_ACCOUNT_URL}/api/v2/statements?async=false`, {
     method: "POST",
     headers: headers(),
