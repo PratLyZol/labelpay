@@ -8,6 +8,7 @@ export const env = {
   DATABASE_URL: process.env.DATABASE_URL ?? "",
   SNOWFLAKE_ACCOUNT_URL: normalizeUrl(process.env.SNOWFLAKE_ACCOUNT_URL ?? ""),
   SNOWFLAKE_PAT: process.env.SNOWFLAKE_PAT ?? "",
+  SNOWFLAKE_WAREHOUSE: process.env.SNOWFLAKE_WAREHOUSE ?? "COMPUTE_WH",
   JUDGE_MODEL: process.env.JUDGE_MODEL ?? "claude-haiku-4-5",
   AUDIT_MODEL: process.env.AUDIT_MODEL ?? "claude-sonnet-4-5",
   JUDGE_MOCK: process.env.JUDGE_MOCK === "1" || !process.env.SNOWFLAKE_PAT,

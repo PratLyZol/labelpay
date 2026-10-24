@@ -18,7 +18,7 @@ async function main() {
       gold: "negative",
     }),
   });
-  console.log("TEXT  ", text.ms + "ms", text.model, JSON.stringify(text.data));
+  console.log("TEXT  ", text.ms + "ms", text.model, "via", text.transport, JSON.stringify(text.data));
 
   try {
     const img = readFileSync("public/img/cat-1.jpg");
@@ -36,7 +36,7 @@ async function main() {
         imageDataUrl: `data:image/jpeg;base64,${img.toString("base64")}`,
       }),
     });
-    console.log("VISION", vision.ms + "ms", vision.model, JSON.stringify(vision.data));
+    console.log("VISION", vision.ms + "ms", vision.model, "via", vision.transport, JSON.stringify(vision.data), vision.transport === "chat" ? "" : "(image dropped: transport is text-only)");
   } catch (e) {
     console.log("VISION unsupported or failed:", (e as Error).message.slice(0, 300));
   }

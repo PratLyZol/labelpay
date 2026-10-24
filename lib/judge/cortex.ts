@@ -24,42 +24,151 @@ export class CortexError extends Error {
   }
 }
 
-/**
- * Calls the Snowflake Cortex OpenAI-compatible Chat Completions endpoint with a JSON schema
- * response format and returns the parsed JSON object.
- */
-export async function cortexJson<T>(opts: CortexOptions): Promise<{ data: T; ms: number; model: string; raw: string }> {
-  const model = opts.model ?? env.JUDGE_MODEL;
-  const url = `${env.SNOWFLAKE_ACCOUNT_URL}/api/v2/cortex/v1/chat/completions`;
-  const body = {
-    model,
-    messages: opts.messages,
-    temperature: opts.temperature ?? 0,
-    max_completion_tokens: opts.maxTokens ?? 400,
-    response_format: {
-      type: "json_schema",
-      json_schema: { name: opts.schemaName, schema: opts.schema, strict: true },
-    },
+export type Transport = "chat" | "inference" | "sql";
+const ORDER: Transport[] = ["chat", "inference", "sql"];
+
+declare global {
+  var __cortexTransport: Transport | undefined;
+}
+
+function headers() {
+  return {
+    Authorization: `Bearer ${env.SNOWFLAKE_PAT}`,
+    "X-Snowflake-Authorization-Token-Type": "PROGRAMMATIC_ACCESS_TOKEN",
+    "Content-Type": "application/json",
+    Accept: "application/json, text/event-stream",
   };
-  const t0 = Date.now();
-  const res = await fetch(url, {
+}
+
+/**
+ * Calls Snowflake Cortex with a JSON schema response format and returns the parsed object.
+ * Three transports, tried in order on the first call and then pinned:
+ *   chat      POST /api/v2/cortex/v1/chat/completions   (OpenAI-compatible; newest, not on every account)
+ *   inference POST /api/v2/cortex/inference:complete    (legacy Cortex LLM REST API, SSE response)
+ *   sql       POST /api/v2/statements  SELECT AI_COMPLETE(...)  (works anywhere Cortex SQL works)
+ * CORTEX_TRANSPORT=chat|inference|sql pins one explicitly.
+ */
+export async function cortexJson<T>(opts: CortexOptions): Promise<{ data: T; ms: number; model: string; raw: string; transport: Transport }> {
+  const model = opts.model ?? env.JUDGE_MODEL;
+  const forced = process.env.CORTEX_TRANSPORT as Transport | undefined;
+  const candidates = forced && ORDER.includes(forced) ? [forced] : globalThis.__cortexTransport ? [globalThis.__cortexTransport] : ORDER;
+  let lastErr: unknown;
+  for (const t of candidates) {
+    const t0 = Date.now();
+    try {
+      const raw = t === "chat" ? await viaChat(model, opts) : t === "inference" ? await viaInference(model, opts) : await viaSql(model, opts);
+      globalThis.__cortexTransport = t;
+      return { data: extractJson<T>(raw), ms: Date.now() - t0, model, raw, transport: t };
+    } catch (e) {
+      lastErr = e;
+      const status = e instanceof CortexError ? e.status : 0;
+      // Only fall through on "endpoint not available" style failures; auth and model errors are real.
+      const fallthrough = status === 403 || status === 404 || status === 400 || status === 405 || status === 0;
+      if (candidates.length === 1 || !fallthrough) throw e;
+      console.warn(`[cortex] transport ${t} failed (${status || (e as Error).message.slice(0, 80)}), trying next`);
+    }
+  }
+  throw lastErr;
+}
+
+async function viaChat(model: string, opts: CortexOptions): Promise<string> {
+  const res = await fetch(`${env.SNOWFLAKE_ACCOUNT_URL}/api/v2/cortex/v1/chat/completions`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.SNOWFLAKE_PAT}`,
-      "X-Snowflake-Authorization-Token-Type": "PROGRAMMATIC_ACCESS_TOKEN",
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify(body),
+    headers: headers(),
+    body: JSON.stringify({
+      model,
+      messages: opts.messages,
+      temperature: opts.temperature ?? 0,
+      max_completion_tokens: opts.maxTokens ?? 400,
+      response_format: { type: "json_schema", json_schema: { name: opts.schemaName, schema: opts.schema, strict: true } },
+    }),
     signal: AbortSignal.timeout(30_000),
   });
   const text = await res.text();
-  const ms = Date.now() - t0;
-  if (!res.ok) throw new CortexError(`Cortex ${res.status}: ${text.slice(0, 300)}`, res.status, text);
+  if (!res.ok) throw new CortexError(`Cortex chat ${res.status}: ${text.slice(0, 300)}`, res.status, text);
   const json = JSON.parse(text);
   const content: unknown = json?.choices?.[0]?.message?.content;
-  const raw = typeof content === "string" ? content : Array.isArray(content) ? content.map((c) => c?.text ?? "").join("") : "";
-  return { data: extractJson<T>(raw), ms, model, raw };
+  return typeof content === "string" ? content : Array.isArray(content) ? content.map((c) => c?.text ?? "").join("") : "";
+}
+
+/** Legacy Cortex LLM REST API. Always streams server-sent events; we concatenate the deltas. */
+async function viaInference(model: string, opts: CortexOptions): Promise<string> {
+  const res = await fetch(`${env.SNOWFLAKE_ACCOUNT_URL}/api/v2/cortex/inference:complete`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({
+      model,
+      messages: flattenMessages(opts.messages),
+      temperature: opts.temperature ?? 0,
+      max_tokens: opts.maxTokens ?? 400,
+      response_format: { type: "json", schema: opts.schema },
+    }),
+    signal: AbortSignal.timeout(30_000),
+  });
+  const text = await res.text();
+  if (!res.ok) throw new CortexError(`Cortex inference ${res.status}: ${text.slice(0, 300)}`, res.status, text);
+  if (!text.includes("data:")) {
+    const json = JSON.parse(text);
+    return json?.choices?.[0]?.message?.content ?? json?.choices?.[0]?.delta?.content ?? "";
+  }
+  let out = "";
+  for (const line of text.split("\n")) {
+    if (!line.startsWith("data:")) continue;
+    const payload = line.slice(5).trim();
+    if (!payload || payload === "[DONE]") continue;
+    try {
+      const j = JSON.parse(payload);
+      out += j?.choices?.[0]?.delta?.content ?? j?.choices?.[0]?.message?.content ?? "";
+    } catch {
+      /* skip keepalive */
+    }
+  }
+  return out;
+}
+
+/** Snowflake SQL API: SELECT AI_COMPLETE(...). Needs a warehouse; trials ship COMPUTE_WH. */
+async function viaSql(model: string, opts: CortexOptions): Promise<string> {
+  const statement = `SELECT AI_COMPLETE(model => ?, prompt => PARSE_JSON(?), model_parameters => OBJECT_CONSTRUCT('temperature', ?::FLOAT, 'max_tokens', ?::INT), response_format => PARSE_JSON(?)) AS r`;
+  const res = await fetch(`${env.SNOWFLAKE_ACCOUNT_URL}/api/v2/statements?async=false`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({
+      statement,
+      timeout: 60,
+      warehouse: env.SNOWFLAKE_WAREHOUSE,
+      bindings: {
+        "1": { type: "TEXT", value: model },
+        "2": { type: "TEXT", value: JSON.stringify(flattenMessages(opts.messages)) },
+        "3": { type: "TEXT", value: String(opts.temperature ?? 0) },
+        "4": { type: "TEXT", value: String(opts.maxTokens ?? 400) },
+        "5": { type: "TEXT", value: JSON.stringify({ type: "json", schema: opts.schema }) },
+      },
+    }),
+    signal: AbortSignal.timeout(60_000),
+  });
+  const text = await res.text();
+  if (!res.ok) throw new CortexError(`Cortex sql ${res.status}: ${text.slice(0, 300)}`, res.status, text);
+  const json = JSON.parse(text);
+  const cell = json?.data?.[0]?.[0];
+  if (cell == null) throw new CortexError(`Cortex sql: empty result ${text.slice(0, 200)}`, 500, text);
+  const s = typeof cell === "string" ? cell : JSON.stringify(cell);
+  // AI_COMPLETE with response_format may wrap the object as {"structured_output":[{"raw_message":{...}}]}
+  try {
+    const j = JSON.parse(s);
+    const inner = j?.structured_output?.[0]?.raw_message ?? j?.choices?.[0]?.messages ?? null;
+    if (inner) return typeof inner === "string" ? inner : JSON.stringify(inner);
+  } catch {
+    /* plain text, fall through */
+  }
+  return s;
+}
+
+/** Image parts are not supported on the legacy / SQL transports; keep the text. */
+function flattenMessages(messages: ChatMessage[]) {
+  return messages.map((m) => ({
+    role: m.role,
+    content: typeof m.content === "string" ? m.content : m.content.map((c) => (c.type === "text" ? c.text : "")).join("\n"),
+  }));
 }
 
 function extractJson<T>(s: string): T {
