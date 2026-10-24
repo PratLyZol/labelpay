@@ -112,14 +112,16 @@ treasury key); an Anchor program with a worker-side `claim` is the trustless roa
 ## Deploy to Vultr
 
 ```bash
-# on a fresh Ubuntu 24.04 instance, as root
-curl -fsSL https://raw.githubusercontent.com/<you>/<repo>/main/deploy/vultr.sh -o vultr.sh
-bash vultr.sh https://github.com/<you>/<repo>.git labelpay.tech   # first run writes .env, exits
+# on a fresh Ubuntu 24.04 instance (1 vCPU / 2 GB is enough), as root
+curl -fsSL https://raw.githubusercontent.com/PratLyZol/labelpay/main/deploy/vultr.sh -o vultr.sh
+bash vultr.sh https://github.com/PratLyZol/labelpay.git            # first run writes .env and exits
 nano /opt/labelpay/.env                                             # fill in secrets, set ALLOW_INSECURE_LOGIN=0
-bash vultr.sh https://github.com/<you>/<repo>.git labelpay.tech   # builds, migrates, seeds, serves on HTTPS
+bash vultr.sh https://github.com/PratLyZol/labelpay.git            # builds, migrates, seeds, serves on HTTPS
 ```
 
-Point the `.tech` domain's A record at the VM before the second run so Caddy can issue the cert.
+No domain needed: the script defaults to `<public-ip>.sslip.io`, a free wildcard DNS name, and Caddy
+issues a Let's Encrypt cert for it. If you claim the free `.tech` domain from the MLH prize page,
+point its A record at the VM and pass it as the second argument instead.
 
 ## Scripts
 

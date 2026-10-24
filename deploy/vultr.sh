@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 # Fresh Ubuntu 24.04 Vultr instance -> running LabelPay with HTTPS. Run as root:
-#   bash vultr.sh <git-repo-url> <domain>
+#   bash vultr.sh <git-repo-url> [domain]
+# With no domain, uses <public-ip>.sslip.io (free wildcard DNS) so Caddy can still issue a real cert.
 set -euo pipefail
-REPO="${1:?git repo url}"; DOMAIN="${2:?domain, e.g. labelpay.tech}"
+REPO="${1:?git repo url}"
+DOMAIN="${2:-}"
+if [ -z "$DOMAIN" ]; then
+  IP=$(curl -4 -fsS https://api.ipify.org || curl -4 -fsS https://ifconfig.me)
+  DOMAIN="${IP}.sslip.io"
+  echo ">> No domain given, using $DOMAIN"
+fi
 
 apt-get update -y && apt-get install -y ca-certificates curl git ufw
 install -m 0755 -d /etc/apt/keyrings
