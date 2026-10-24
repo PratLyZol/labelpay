@@ -1,73 +1,133 @@
 "use client";
 
-import { useState } from "react";
-import type { ServedTask, TextPayload, PairwisePayload, ImagePayload } from "@/lib/db/types";
+import { useEffect, useState } from "react";
+import { ArrowRight, Check, FileText, Image, ListOrdered } from "lucide-react";
+import type { ImagePayload, PairwisePayload, ServedTask, TextPayload } from "@/lib/db/types";
 import { Button } from "@/components/ui/button";
 import { sol } from "@/components/format";
 
+const TYPE_META = {
+  text: { label: "Sentiment", icon: FileText },
+  pairwise: { label: "Compare", icon: ListOrdered },
+  image: { label: "Identify", icon: Image },
+} as const;
+
 export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit: (answer: string) => void; busy: boolean }) {
   const [choice, setChoice] = useState<string | null>(null);
-  const submit = (a: string) => {
-    setChoice(a);
-    onSubmit(a);
+  const meta = TYPE_META[task.type];
+  const TypeIcon = meta.icon;
+
+  const advance = () => {
+    if (choice && !busy) onSubmit(choice);
   };
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (busy) return;
+      const optionNumber = Number(event.key);
+      if (optionNumber >= 1 && optionNumber <= task.options.length) {
+        setChoice(task.options[optionNumber - 1]);
+        return;
+      }
+      if ((event.key === "ArrowRight" || event.key === "Enter") && choice) {
+        event.preventDefault();
+        onSubmit(choice);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [busy, choice, onSubmit, task.options]);
+
   return (
-    <div className="space-y-5">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="eyebrow text-muted-foreground">{task.type} · {task.title}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{task.guidelines}</p>
-        </div>
-        <span className="shrink-0 rounded-md bg-accent px-2 py-1 text-xs font-medium text-accent-foreground">base {sol(task.payLamports, 3)}</span>
-      </div>
-      {task.modelConfidence != null && (
-        <p className="rounded-lg border border-dashed px-3 py-2 text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">Why you:</span> the first-pass model was only {Math.round(task.modelConfidence * 100)}% sure.
-          {task.modelRationale ? ` ${task.modelRationale}` : ""}
-        </p>
-      )}
-
-      {task.type === "text" && (
-        <blockquote className="rounded-2xl border bg-muted/40 p-6 text-xl leading-relaxed">“{(task.payload as TextPayload).text}”</blockquote>
-      )}
-
-      {task.type === "pairwise" && (
-        <div className="space-y-3">
-          <div className="rounded-xl border bg-muted/50 p-4 text-sm"><span className="font-medium">User:</span> {(task.payload as PairwisePayload).prompt}</div>
-          <div className="grid gap-3 md:grid-cols-2">
-            {(["a", "b"] as const).map((k) => (
-              <button
-                key={k}
-                type="button"
-                disabled={busy}
-                onClick={() => submit(k.toUpperCase())}
-                className={`rounded-xl border bg-card p-4 text-left text-sm leading-relaxed transition hover:border-primary hover:shadow-sm disabled:opacity-60 ${choice === k.toUpperCase() ? "border-primary ring-2 ring-primary/30" : ""}`}
-              >
-                <span className="mb-2 inline-block rounded-md bg-muted px-2 py-0.5 text-xs font-semibold">Response {k.toUpperCase()}</span>
-                <p className="whitespace-pre-wrap">{(task.payload as PairwisePayload)[k]}</p>
-              </button>
-            ))}
+    <article className="flash-card-enter overflow-hidden rounded-[24px] border bg-card shadow-[0_24px_80px_rgba(0,0,0,0.24)]">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-7">
+        <div className="flex items-center gap-3">
+          <span className="flex size-8 items-center justify-center rounded-lg border bg-background text-muted-foreground">
+            <TypeIcon className="size-4" strokeWidth={1.8} aria-hidden="true" />
+          </span>
+          <div>
+            <p className="text-sm font-medium">{task.title}</p>
+            <p className="text-xs text-muted-foreground">{meta.label} · Choose one answer</p>
           </div>
         </div>
-      )}
+        <span className="rounded-full border px-3 py-1 text-xs tabular-nums text-muted-foreground">{sol(task.payLamports, 3)} / card</span>
+      </header>
 
-      {task.type === "image" && (
-        <div className="overflow-hidden rounded-xl border bg-card">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={(task.payload as ImagePayload).src} alt="Item to label" className="mx-auto max-h-[420px] w-full object-contain bg-black/5" />
-        </div>
-      )}
+      <div className="px-5 py-6 sm:px-7 sm:py-8">
+        {task.type === "text" && (
+          <div className="flex min-h-[250px] items-center justify-center rounded-2xl bg-[#0e1416] px-6 py-10 sm:px-12">
+            <blockquote className="max-w-3xl text-center text-2xl font-medium leading-[1.45] tracking-[-0.025em] sm:text-[30px]">
+              “{(task.payload as TextPayload).text}”
+            </blockquote>
+          </div>
+        )}
 
-      <div className="flex flex-wrap gap-2">
-        {task.options
-          .filter((o) => !(task.type === "pairwise" && (o === "A" || o === "B")))
-          .map((o) => (
-            <Button key={o} variant={choice === o ? "default" : "outline"} size="lg" disabled={busy} onClick={() => submit(o)} className="min-w-28 capitalize">
-              {o}
-            </Button>
-          ))}
+        {task.type === "image" && (
+          <div className="overflow-hidden rounded-2xl bg-[#090c0e]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={(task.payload as ImagePayload).src} alt={(task.payload as ImagePayload).alt ?? "Photo to label"} className="mx-auto h-[260px] w-full object-contain sm:h-[390px]" />
+          </div>
+        )}
+
+        {task.type === "pairwise" && (
+          <div className="space-y-4">
+            <div className="rounded-xl border bg-muted/35 px-4 py-3">
+              <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">User prompt</p>
+              <p className="text-sm leading-6">{(task.payload as PairwisePayload).prompt}</p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {(["A", "B"] as const).map((answer) => {
+                const key = answer.toLowerCase() as "a" | "b";
+                const selected = choice === answer;
+                return (
+                  <button key={answer} type="button" onClick={() => setChoice(answer)} disabled={busy} aria-pressed={selected} className={`relative min-h-52 rounded-2xl border p-5 text-left transition duration-200 disabled:opacity-60 ${selected ? "border-primary bg-accent/55 ring-1 ring-primary" : "bg-[#0f1517] hover:border-input hover:bg-muted/40"}`}>
+                    <span className={`mb-4 inline-flex size-7 items-center justify-center rounded-md text-xs font-semibold ${selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{answer}</span>
+                    <p className="whitespace-pre-wrap text-sm leading-6">{(task.payload as PairwisePayload)[key]}</p>
+                    {selected && <Check className="absolute right-4 top-4 size-4 text-primary" aria-hidden="true" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {task.type !== "pairwise" && (
+          <div className={`mt-5 grid gap-2.5 ${task.options.length > 3 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
+            {task.options.map((option, index) => {
+              const selected = choice === option;
+              return (
+                <button key={option} type="button" onClick={() => setChoice(option)} disabled={busy} aria-pressed={selected} className={`flex min-h-14 items-center gap-3 rounded-xl border px-4 text-left text-sm font-medium capitalize transition duration-200 disabled:opacity-60 ${selected ? "border-primary bg-accent text-accent-foreground ring-1 ring-primary" : "bg-[#101619] hover:border-input hover:bg-muted/50"}`}>
+                  <span className={`flex size-6 shrink-0 items-center justify-center rounded-md text-[11px] ${selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{index + 1}</span>
+                  {option}
+                  {selected && <Check className="ml-auto size-4 text-primary" aria-hidden="true" />}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {task.type === "pairwise" && task.options.includes("tie") && (
+          <button type="button" onClick={() => setChoice("tie")} disabled={busy} aria-pressed={choice === "tie"} className={`mt-3 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition disabled:opacity-60 ${choice === "tie" ? "border-primary bg-accent text-accent-foreground ring-1 ring-primary" : "bg-[#101619] text-muted-foreground hover:border-input hover:text-foreground"}`}>
+            <span className="flex size-5 items-center justify-center rounded text-[10px] ring-1 ring-current/30">3</span>
+            Both responses are equally good
+            {choice === "tie" && <Check className="size-4 text-primary" aria-hidden="true" />}
+          </button>
+        )}
+
+        {task.modelConfidence != null && (
+          <details className="mt-5 text-xs text-muted-foreground">
+            <summary className="w-fit cursor-pointer transition hover:text-foreground">Why this needed a human</summary>
+            <p className="mt-2 max-w-2xl leading-5">The first pass was {Math.round(task.modelConfidence * 100)}% confident.{task.modelRationale ? ` ${task.modelRationale}` : ""}</p>
+          </details>
+        )}
       </div>
-      <p className="text-xs text-muted-foreground">Keyboard: press 1–{task.options.length} to answer.</p>
-    </div>
+
+      <footer className="flex flex-wrap items-center justify-between gap-4 border-t bg-[#101619] px-5 py-4 sm:px-7">
+        <p className="text-xs text-muted-foreground"><span className="hidden sm:inline">Press 1–{task.options.length} to select · </span>Right arrow or Enter to continue</p>
+        <Button size="lg" onClick={advance} disabled={!choice || busy} className="min-w-40">
+          {busy ? "Checking…" : "Submit & next"}<ArrowRight className="size-4" aria-hidden="true" />
+        </Button>
+      </footer>
+    </article>
   );
 }

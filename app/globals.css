@@ -30,25 +30,25 @@
 }
 
 .dark {
-  --background: #0c0b14;
-  --foreground: #f1effa;
-  --card: #15131f;
-  --card-foreground: #f1effa;
-  --popover: #15131f;
-  --popover-foreground: #f1effa;
-  --primary: #a76bff;
-  --primary-foreground: #0c0b14;
-  --secondary: #221e33;
-  --secondary-foreground: #f1effa;
-  --muted: #1c1929;
-  --muted-foreground: #a8a3bf;
-  --accent: #0f2a22;
-  --accent-foreground: #7ff5c4;
+  --background: #0c1013;
+  --foreground: #e9eeeb;
+  --card: #12181b;
+  --card-foreground: #e9eeeb;
+  --popover: #171e21;
+  --popover-foreground: #e9eeeb;
+  --primary: #c8f48a;
+  --primary-foreground: #101810;
+  --secondary: #1b2426;
+  --secondary-foreground: #e9eeeb;
+  --muted: #192124;
+  --muted-foreground: #93a09b;
+  --accent: #203227;
+  --accent-foreground: #d5f5b0;
   --destructive: #ef5350;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.14);
-  --ring: #a76bff;
-  --sidebar: #100e1a;
+  --border: #273136;
+  --input: #324045;
+  --ring: #c8f48a;
+  --sidebar: #0e1316;
 }
 
 @theme inline {
@@ -103,4 +103,17 @@
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+
+@keyframes flash-card-enter {
+  from { opacity: 0; transform: translateX(18px) scale(0.995); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.flash-card-enter {
+  animation: flash-card-enter 240ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash-card-enter { animation: none; }
 }
