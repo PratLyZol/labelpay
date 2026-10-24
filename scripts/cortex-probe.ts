@@ -2,7 +2,7 @@
 import "dotenv/config";
 import { env } from "../lib/env";
 
-const MODELS = (process.env.PROBE_MODELS ?? "claude-haiku-4-5,claude-sonnet-4-5,claude-3-5-sonnet,openai-gpt-5-mini,llama3.1-8b,llama3.1-70b,mistral-large2,mistral-7b,snowflake-arctic").split(",");
+const MODELS = (process.env.PROBE_MODELS || "claude-haiku-4-5,claude-sonnet-4-5,claude-3-5-sonnet,openai-gpt-5-mini,llama3.1-8b,llama3.1-70b,mistral-large2,mistral-7b,snowflake-arctic").split(",");
 const H = {
   Authorization: `Bearer ${env.SNOWFLAKE_PAT}`,
   "X-Snowflake-Authorization-Token-Type": "PROGRAMMATIC_ACCESS_TOKEN",
