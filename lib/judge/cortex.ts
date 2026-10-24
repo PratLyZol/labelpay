@@ -128,7 +128,9 @@ async function viaInference(model: string, opts: CortexOptions): Promise<string>
 
 /** Snowflake SQL API: SELECT AI_COMPLETE(...). Needs a warehouse; trials ship COMPUTE_WH. */
 async function viaSql(model: string, opts: CortexOptions): Promise<string> {
-  const statement = `SELECT AI_COMPLETE(model => ?, prompt => PARSE_JSON(?), model_parameters => OBJECT_CONSTRUCT('temperature', ?::FLOAT, 'max_tokens', ?::INT), response_format => PARSE_JSON(?)) AS r`;
+  // Positional args with explicit casts: named args with bound VARIANTs make Snowflake report
+  // "More than one function of AI_COMPLETE are resolved in prepare state".
+  const statement = `SELECT AI_COMPLETE(?::VARCHAR, PARSE_JSON(?)::ARRAY, PARSE_JSON(?)::OBJECT, PARSE_JSON(?)::OBJECT) AS r`;
   const res = await fetch(`${env.SNOWFLAKE_ACCOUNT_URL}/api/v2/statements?async=false`, {
     method: "POST",
     headers: headers(),
@@ -139,9 +141,8 @@ async function viaSql(model: string, opts: CortexOptions): Promise<string> {
       bindings: {
         "1": { type: "TEXT", value: model },
         "2": { type: "TEXT", value: JSON.stringify(flattenMessages(opts.messages)) },
-        "3": { type: "TEXT", value: String(opts.temperature ?? 0) },
-        "4": { type: "TEXT", value: String(opts.maxTokens ?? 400) },
-        "5": { type: "TEXT", value: JSON.stringify({ type: "json", schema: opts.schema }) },
+        "3": { type: "TEXT", value: JSON.stringify({ temperature: opts.temperature ?? 0, max_tokens: opts.maxTokens ?? 400 }) },
+        "4": { type: "TEXT", value: JSON.stringify({ type: "json", schema: opts.schema }) },
       },
     }),
     signal: AbortSignal.timeout(60_000),
