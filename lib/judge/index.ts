@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { env } from "@/lib/env";
 import type { Task, TaskSet, ImagePayload } from "@/lib/db/types";
-import { cortexJson } from "./cortex";
+import { judgeJson } from "./gemini";
 import {
   buildMonitorMessages,
   buildRoutingMessages,
@@ -45,10 +45,13 @@ export async function monitorLabel(set: TaskSet, task: Task, answer: string): Pr
     modelConfidence: task.model_confidence,
   };
   try {
-    const { data, ms, model } = await cortexJson<MonitorVerdict>({ messages: buildMonitorMessages({ ...base, imageDataUrl }), schemaName: "monitor_verdict", schema: MONITOR_SCHEMA });
+    const { data, ms, model } = await judgeJson<MonitorVerdict>({ messages: buildMonitorMessages({ ...base, imageDataUrl }), schemaName: "monitor_verdict", schema: MONITOR_SCHEMA });
+    if (!["ok", "questionable", "absurd"].includes(data.severity) || !Number.isFinite(data.confidence) || typeof data.note !== "string") {
+      throw new Error("Gemini returned an invalid monitor verdict");
+    }
     return { verdict: data, ms, model, flags };
   } catch (e) {
-    console.error("[monitor] cortex failed:", (e as Error).message);
+    console.error("[monitor] Gemini failed:", (e as Error).message);
     return { verdict: null, ms: 0, model: null, flags: [...flags, ...(imageDataUrl ? ["vision_unavailable" as Flag] : []), "judge_unavailable"] };
   }
 }
@@ -59,11 +62,14 @@ export async function routeTask(set: TaskSet, task: Task): Promise<RoutingResult
   const flags: Flag[] = [];
   const imageDataUrl = await imageFor(set, task, flags);
   if (set.type === "image" && !imageDataUrl) throw new Error(`Image unavailable for task ${task.id}`);
-  const { data, ms, model } = await cortexJson<RoutingResult>({
+  const { data, ms, model } = await judgeJson<RoutingResult>({
     messages: buildRoutingMessages({ type: set.type, title: set.title, guidelines: set.guidelines, options: set.options, payload: task.payload, imageDataUrl }),
     schemaName: "routing",
     schema: ROUTING_SCHEMA,
   });
+  if (!set.options.includes(data.label) || !Number.isFinite(data.confidence) || data.confidence < 0 || data.confidence > 1 || typeof data.rationale !== "string") {
+    throw new Error(`Gemini returned an invalid routing result for task ${task.id}`);
+  }
   return { ...data, ms, model };
 }
 
@@ -77,7 +83,7 @@ async function imageFor(set: TaskSet, task: Task, flags: Flag[]): Promise<string
   }
 }
 
-async function loadImageAsDataUrl(src: string): Promise<string> {
+export async function loadImageAsDataUrl(src: string): Promise<string> {
   if (src.startsWith("data:")) return src;
   if (/^https?:\/\//.test(src)) {
     const res = await fetch(src, { signal: AbortSignal.timeout(8000) });
@@ -92,7 +98,7 @@ async function loadImageAsDataUrl(src: string): Promise<string> {
   return `data:${type};base64,${buf.toString("base64")}`;
 }
 
-/* ---- mock mode (no Snowflake credentials) ---- */
+/* ---- mock mode (no Gemini credentials) ---- */
 
 function mockMonitor(task: Task, answer: string): MonitorOutcome {
   const ms = 120 + Math.floor(Math.random() * 200);
@@ -116,5 +122,5 @@ function mockRoute(set: TaskSet, task: Task): RoutingResult & { ms: number; mode
   const h = createHash("sha256").update(task.id).digest();
   const confidence = 0.55 + (h[0] / 255) * 0.45;
   const label = task.gold_label ?? set.options[h[1] % set.options.length];
-  return { label, confidence: Math.round(confidence * 100) / 100, rationale: "mock routing (no Snowflake credentials)", ms: 50, model: "mock" };
+  return { label, confidence: Math.round(confidence * 100) / 100, rationale: "mock routing (no Gemini credentials)", ms: 50, model: "mock" };
 }

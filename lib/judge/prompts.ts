@@ -1,5 +1,5 @@
 import type { TaskPayload, TaskType, PairwisePayload, TextPayload, ImagePayload } from "@/lib/db/types";
-import type { ChatMessage, ChatContentPart } from "./cortex";
+import type { ChatMessage, ChatContentPart } from "./gemini";
 
 /* ------------------------------------------------------------------ */
 /* 1. Routing: the model labels first. Confident items never reach a    */
@@ -129,10 +129,10 @@ const AUDIT_SYSTEM = `You audit a data-labeling worker's recent batch for a paid
 Judge the batch as a whole: consistency, attention to guidelines, and whether disagreements with references look like honest judgment calls or carelessness. Do not penalize defensible disagreements on ambiguous items.
 Respond only with JSON matching the schema.`;
 
-export function buildAuditMessages(rows: { type: TaskType; title: string; guidelines: string; options: string[]; payload: TaskPayload; answer: string; gold: string | null; modelLabel: string | null; latencyMs: number }[]): ChatMessage[] {
-  const body = rows
-    .map((r, i) =>
-      [
+export function buildAuditMessages(rows: { type: TaskType; title: string; guidelines: string; options: string[]; payload: TaskPayload; answer: string; gold: string | null; modelLabel: string | null; latencyMs: number; imageDataUrl?: string }[]): ChatMessage[] {
+  const body: ChatContentPart[] = [];
+  rows.forEach((r, i) => {
+    body.push({ type: "text", text: [
         `--- ITEM ${i + 1} (${r.type}: ${r.title}) ---`,
         `GUIDELINES: ${r.guidelines}`,
         `LABELS: ${r.options.join(" | ")}`,
@@ -140,11 +140,9 @@ export function buildAuditMessages(rows: { type: TaskType; title: string; guidel
         r.modelLabel ? `MODEL GUESS: ${r.modelLabel}` : "",
         r.gold ? `REFERENCE: ${r.gold}` : "",
         `WORKER ANSWER: ${r.answer} (took ${(r.latencyMs / 1000).toFixed(1)}s)`,
-      ]
-        .filter(Boolean)
-        .join("\n"),
-    )
-    .join("\n\n");
+      ].filter(Boolean).join("\n") });
+    if (r.imageDataUrl) body.push({ type: "image_url", image_url: { url: r.imageDataUrl } });
+  });
   return [
     { role: "system", content: AUDIT_SYSTEM },
     { role: "user", content: body },

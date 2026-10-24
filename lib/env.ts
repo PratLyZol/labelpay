@@ -1,17 +1,9 @@
-function normalizeUrl(u: string) {
-  const t = u.trim().replace(/\/+$/, "");
-  if (!t) return "";
-  return /^https?:\/\//i.test(t) ? t : `https://${t}`;
-}
-
 export const env = {
   DATABASE_URL: process.env.DATABASE_URL ?? "",
-  SNOWFLAKE_ACCOUNT_URL: normalizeUrl(process.env.SNOWFLAKE_ACCOUNT_URL ?? ""),
-  SNOWFLAKE_PAT: process.env.SNOWFLAKE_PAT ?? "",
-  SNOWFLAKE_WAREHOUSE: process.env.SNOWFLAKE_WAREHOUSE ?? "COMPUTE_WH",
-  JUDGE_MODEL: process.env.JUDGE_MODEL ?? "claude-haiku-4-5",
-  AUDIT_MODEL: process.env.AUDIT_MODEL ?? "claude-sonnet-4-5",
-  JUDGE_MOCK: process.env.JUDGE_MOCK === "1" || !process.env.SNOWFLAKE_PAT,
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY ?? "",
+  JUDGE_MODEL: process.env.JUDGE_MODEL ?? "gemini-3.5-flash-lite",
+  AUDIT_MODEL: process.env.AUDIT_MODEL ?? "gemini-3.8-flash",
+  JUDGE_MOCK: process.env.JUDGE_MOCK === "1" || !process.env.GEMINI_API_KEY,
   SOLANA_RPC_URL: process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
   TREASURY_SECRET_KEY: process.env.TREASURY_SECRET_KEY ?? "",
   BASE_PAY_LAMPORTS: BigInt(process.env.BASE_PAY_LAMPORTS ?? "1000000"),

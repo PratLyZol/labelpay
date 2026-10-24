@@ -11,7 +11,7 @@
     "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
     "db:reset": "tsx --env-file-if-exists=.env.local scripts/reset.ts",
     "keygen": "tsx scripts/keygen.ts",
-    "cortex:smoke": "tsx --env-file-if-exists=.env.local scripts/cortex-smoke.ts",
+    "gemini:smoke": "tsx --env-file-if-exists=.env.local scripts/gemini-smoke.ts",
     "typecheck": "tsc --noEmit",
     "images": "tsx scripts/fetch-images.ts",
     "route": "tsx --env-file-if-exists=.env.local scripts/route.ts"

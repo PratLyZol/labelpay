@@ -127,7 +127,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Routed to humans" value={`${stats.routing.human} / ${stats.routing.total}`} sub={`model auto-labeled ${stats.routing.auto}${stats.routing.pending ? `, ${stats.routing.pending} unrouted` : ""}`} />
         <Stat label="Model confidence on human items" value={`${Math.round(stats.routing.human_avg_conf * 100)}%`} sub={`vs ${Math.round(stats.routing.auto_avg_conf * 100)}% on auto items`} />
-        <Stat label="Avg monitor time" value={`${t.avg_judge_ms} ms`} sub="Snowflake Cortex" />
+        <Stat label="Avg monitor time" value={`${t.avg_judge_ms} ms`} sub="Gemini" />
         <Stat label="Avg time per label" value={`${(t.avg_latency_ms / 1000).toFixed(1)} s`} sub="worker latency" />
       </div>
 

@@ -24,7 +24,7 @@ cd /opt/labelpay && git pull --ff-only || true
 if [ ! -f .env ]; then
   cp .env.example .env
   echo "DOMAIN=$DOMAIN" >> .env
-  echo ">> Fill in /opt/labelpay/.env (DATABASE_URL, SNOWFLAKE_*, TREASURY_SECRET_KEY, SESSION_SECRET), then re-run this script."
+  echo ">> Configure /opt/labelpay/.env (DATABASE_URL, GEMINI_API_KEY, TREASURY_SECRET_KEY, SESSION_SECRET), then re-run this script."
   exit 0
 fi
 grep -q '^DOMAIN=' .env || echo "DOMAIN=$DOMAIN" >> .env

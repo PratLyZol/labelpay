@@ -1,7 +1,7 @@
 # LabelPay — label data, get judged by AI, get paid in SOL per label
 
-HackTX 26 project. A first-pass model (Claude on **Snowflake Cortex**, Chat Completions REST API with
-JSON-schema output) labels everything it is confident about; only the hard items are served to humans,
+HackTX 26 project. A first-pass model (**Gemini**, with structured JSON output) labels everything
+it is confident about; only the hard items are served to humans,
 who connect a Solana wallet and label them (text sentiment, pairwise LLM-response ratings, image
 subjects). An agent monitors the work rather than grading it: behavioral fraud signals, hidden gold
 items, peer consensus, a coherence check that only flags absurd answers, and a periodic bigger-model
@@ -15,7 +15,7 @@ Docker + Caddy on a **Vultr** VM.
 | Layer | Tech |
 |---|---|
 | App | Next.js 16 (App Router), TypeScript, Tailwind v4, shadcn/ui |
-| Agent | Snowflake Cortex `POST /api/v2/cortex/v1/chat/completions`, PAT auth, `response_format: json_schema`; `claude-haiku-4-5` for routing + monitoring, `claude-sonnet-4-5` for audits |
+| Agent | Gemini API `generateContent`, server-side API key, structured JSON; `gemini-3.5-flash-lite` for routing + monitoring, `gemini-3.8-flash` for audits |
 | Database | Tiger Cloud (TimescaleDB): `label_events` + `payouts` hypertables, `labels_1m` + `worker_1m` continuous aggregates |
 | Chain | `@solana/kit` + `@solana-program/system` (server transfers), `@solana/kit-plugin-wallet` + `@solana/react` (wallet connect, Sign-In-With-Solana) |
 | Realtime | Server-Sent Events (`/api/stream`) |
@@ -34,7 +34,7 @@ pnpm dev
 ```
 
 Without a `DATABASE_URL` that has TimescaleDB, the migration falls back to plain tables and views so
-local Postgres works. Without `SNOWFLAKE_PAT` routing, the monitor and audits run in mock mode (deterministic pseudo-confidence, always "ok").
+local Postgres works. Without `GEMINI_API_KEY` routing, the monitor and audits run in mock mode (deterministic pseudo-confidence, always "ok").
 Without `TREASURY_SECRET_KEY` payouts are recorded as `mock` transactions. The whole flow still runs.
 
 ### Environment
@@ -42,15 +42,14 @@ Without `TREASURY_SECRET_KEY` payouts are recorded as `mock` transactions. The w
 | Var | Where to get it |
 |---|---|
 | `DATABASE_URL` | Tiger Cloud console → service → connection string ($1,000 MLH credits via mlh.link/tigerdata-quickstart) |
-| `SNOWFLAKE_ACCOUNT_URL` | `https://<account>.<region>.snowflakecomputing.com` from the 120-day trial (mlh.link/snowflake-signup). Pick AWS us-west-2 or us-east-1 so Claude is available, or run `ALTER ACCOUNT SET CORTEX_ENABLED_CROSS_REGION = 'ANY_REGION';` |
-| `SNOWFLAKE_PAT` | Snowsight → user menu → My profile → Programmatic access tokens. The user's default role needs `SNOWFLAKE.CORTEX_USER` (granted to PUBLIC by default) |
+| `GEMINI_API_KEY` | Create an API key in [Google AI Studio](https://aistudio.google.com/app/apikey). Keep it on the server; never put it in client code or git. |
 | `TREASURY_SECRET_KEY` | `pnpm keygen` prints an address + base58 secret. Fund it: `solana airdrop 5 <address> --url devnet` (repeat) or faucet.solana.com |
 | `SESSION_SECRET` | any 32+ random characters |
 | `ALLOW_INSECURE_LOGIN` | `1` only for local curl testing (skips wallet signature check). Keep `0` in production |
 
-Smoke-test the judge once credentials are in: `pnpm cortex:smoke` (runs a text verdict and a vision
-verdict). Image judgments require the chat transport. If it is unavailable, image tasks stay with
-humans and the monitor reports that vision is unavailable; hidden reference checks still apply.
+Smoke-test the judge once credentials are in: `pnpm gemini:smoke` (runs a text verdict and an image
+verdict). If an image cannot be loaded or Gemini is unavailable, it stays with humans; hidden
+reference checks still apply.
 
 ### Demo script
 
@@ -69,7 +68,7 @@ humans and the monitor reports that vision is unavailable; hidden reference chec
 
 The agent does not grade humans. It routes, monitors, and audits.
 
-1. **Route, don't grade** (`pnpm route`, `scripts/route.ts`). The first-pass model (Claude on Cortex)
+1. **Route, don't grade** (`pnpm route`, `scripts/route.ts`). The first-pass Gemini model
    labels every task with a calibrated confidence. Items at or above `ROUTE_CONFIDENCE_THRESHOLD`
    (0.85) are marked `auto` and never served. Everything else is marked `human`. Workers are paid
    for exactly the labels machines could not do, and the task card tells them why ("the model was
@@ -79,12 +78,12 @@ The agent does not grade humans. It routes, monitors, and audits.
    (`gold_miss`, 1 in 5 tasks, invisible to the worker), and disagreement with a 2/3 majority of
    other workers on the same item (`consensus_disagree`).
 3. **Check coherence, not correctness** (`lib/judge/index.ts` → `monitorLabel`). On every label the
-   Cortex monitor answers one question: is this answer defensible under any reasonable reading of
+   Gemini monitor answers one question: is this answer defensible under any reasonable reading of
    the guidelines? `ok` approves (including answers the model disagrees with on a close call),
    `questionable` approves with a small trust nudge, `absurd` at ≥0.8 confidence rejects
    (`incoherent`). It also writes one sentence of feedback to the worker.
-4. **Audit later with a bigger model** (`lib/judge/audit.ts`). Every 10 labels per worker, Claude
-   Sonnet re-reads the last 20 items with guidelines, answers, references and model guesses, and
+4. **Audit later with a bigger model** (`lib/judge/audit.ts`). Every 10 labels per worker, Gemini
+   Flash re-reads the last 20 items with guidelines, answers, references and model guesses, and
    returns a batch quality score plus patterns ("over-uses neutral"). Trust moves by at most ±12.
    `POST /api/audit` runs one on demand for the demo.
 
@@ -141,4 +140,4 @@ gh secret set VULTR_SSH_KEY < ~/.ssh/labelpay_deploy
 ## Scripts
 
 `pnpm dev` · `pnpm build` · `pnpm db:migrate` · `pnpm db:seed` · `pnpm route` · `pnpm db:reset` · `pnpm images` ·
-`pnpm keygen` · `pnpm cortex:smoke` · `pnpm typecheck` · `pnpm lint`
+`pnpm keygen` · `pnpm gemini:smoke` · `pnpm typecheck` · `pnpm lint`
