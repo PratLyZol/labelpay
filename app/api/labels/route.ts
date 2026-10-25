@@ -54,7 +54,27 @@ export async function POST(req: Request) {
   });
 
   const basePay = BigInt(set.pay_lamports) || env.BASE_PAY_LAMPORTS;
-  const pay = result.payable ? BigInt(Math.round(Number(basePay) * result.multiplier)) : 0n;
+  let pay = result.payable ? BigInt(Math.round(Number(basePay) * result.multiplier)) : 0n;
+
+  // Requester projects can only spend their verified deposit. The atomic update prevents two
+  // simultaneous labels from both claiming the same remaining project funds.
+  if (pay > 0n && set.owner_wallet && BigInt(set.funding_lamports ?? 0) > 0n) {
+    const [reservation] = await sql<{ exhausted: boolean }[]>`
+      UPDATE task_sets
+      SET spent_lamports = spent_lamports + ${pay.toString()}
+      WHERE id = ${set.id}
+        AND status = 'open'
+        AND spent_lamports + ${pay.toString()} <= funding_lamports
+      RETURNING spent_lamports >= funding_lamports AS exhausted`;
+    if (!reservation) {
+      pay = 0n;
+      await sql`UPDATE task_sets SET status = 'closed' WHERE id = ${set.id} AND status = 'open'`;
+      await sql`UPDATE tasks SET active = false WHERE set_id = ${set.id}`;
+    } else if (reservation.exhausted) {
+      await sql`UPDATE task_sets SET status = 'closed' WHERE id = ${set.id}`;
+      await sql`UPDATE tasks SET active = false WHERE set_id = ${set.id}`;
+    }
+  }
 
   const [ev] = await sql<{ id: bigint }[]>`
     INSERT INTO label_events (worker, task_id, set_id, task_type, answer, latency_ms, verdict, confidence, reason, flags, pay_lamports, trust_after, judge_ms, judge_model)

@@ -28,7 +28,11 @@ export interface TaskSet {
   min_latency_ms: number;
   owner_wallet?: string | null;
   created_at?: Date;
-  status?: "open" | "closed";
+  status?: "funding" | "open" | "closed";
+  funding_lamports?: bigint;
+  spent_lamports?: bigint;
+  deposit_tx_sig?: string | null;
+  funded_at?: Date | null;
 }
 
 export interface TextPayload { text: string }

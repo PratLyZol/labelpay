@@ -178,3 +178,11 @@ ALTER TABLE task_sets
   ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'open';
 ---
 CREATE INDEX IF NOT EXISTS task_sets_owner_created ON task_sets (owner_wallet, created_at DESC);
+---
+ALTER TABLE task_sets
+  ADD COLUMN IF NOT EXISTS funding_lamports bigint NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS spent_lamports bigint NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS deposit_tx_sig text,
+  ADD COLUMN IF NOT EXISTS funded_at timestamptz;
+---
+CREATE UNIQUE INDEX IF NOT EXISTS task_sets_deposit_tx_sig ON task_sets (deposit_tx_sig) WHERE deposit_tx_sig IS NOT NULL;

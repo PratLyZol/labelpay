@@ -4,6 +4,8 @@ import { requireWallet } from "@/lib/auth/session";
 import { z } from "zod";
 import { parsePublicImageUrl } from "@/lib/images/remote";
 import { env } from "@/lib/env";
+import { treasuryAddress } from "@/lib/solana/treasury";
+import { projectDepositMemo } from "@/lib/solana/project-funding";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +60,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Pay per label must be between 0.00001 and ${Number(env.BASE_PAY_LAMPORTS) / 1e9} SOL.` }, { status: 400 });
   }
 
+  const treasury = await treasuryAddress();
+  if (!treasury) {
+    return NextResponse.json({ error: "Project funding is unavailable until the Testnet treasury is configured." }, { status: 503 });
+  }
+
   let normalizedItems: string[];
   try {
     normalizedItems = type === "image"
@@ -70,24 +77,26 @@ export async function POST(req: Request) {
   }
 
   const projectId = `project-${crypto.randomUUID()}`;
+  // Trust multipliers can pay up to 1.5x, so reserve the worst-case liability.
+  const fundingLamports = (payLamports * BigInt(normalizedItems.length) * 3n + 1n) / 2n;
   try {
     await sql.begin(async (tx) => {
       await tx`SELECT pg_advisory_xact_lock(hashtext(${wallet}))`;
       const [usage] = await tx<{ projects: number; tasks: number }[]>`
         SELECT count(DISTINCT s.id)::int AS projects, count(t.id)::int AS tasks
-        FROM task_sets s LEFT JOIN tasks t ON t.set_id = s.id AND t.active = true
-        WHERE s.owner_wallet = ${wallet} AND s.status = 'open'`;
+        FROM task_sets s LEFT JOIN tasks t ON t.set_id = s.id
+        WHERE s.owner_wallet = ${wallet} AND s.status IN ('funding', 'open')`;
       if (usage.projects >= 3 || usage.tasks + normalizedItems.length > 100) {
-        throw new Error("Demo requester limit reached: at most 3 open projects and 100 active items per wallet.");
+        throw new Error("Demo requester limit reached: at most 3 active drafts and 100 total items per wallet.");
       }
       await tx`
-        INSERT INTO task_sets (id, type, title, guidelines, options, pay_lamports, min_latency_ms, owner_wallet, status)
-        VALUES (${projectId}, ${type}, ${title}, ${guidelines}, ${tx.json(options)}, ${payLamports.toString()}, 1200, ${wallet}, 'open')`;
+        INSERT INTO task_sets (id, type, title, guidelines, options, pay_lamports, min_latency_ms, owner_wallet, status, funding_lamports)
+        VALUES (${projectId}, ${type}, ${title}, ${guidelines}, ${tx.json(options)}, ${payLamports.toString()}, 1200, ${wallet}, 'funding', ${fundingLamports.toString()})`;
       for (const item of normalizedItems) {
         const payload = type === "image" ? { src: item, alt: "Requester-provided image to label" } : { text: item };
         await tx`
           INSERT INTO tasks (id, set_id, payload, is_gold, routing, active)
-          VALUES (${`task-${crypto.randomUUID()}`}, ${projectId}, ${tx.json(payload)}, false, 'pending', true)`;
+          VALUES (${`task-${crypto.randomUUID()}`}, ${projectId}, ${tx.json(payload)}, false, 'pending', false)`;
       }
     });
   } catch (error) {
@@ -98,6 +107,16 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({
-    project: { id: projectId, type, title, itemCount: normalizedItems.length, payLamports: payLamports.toString() },
+    project: {
+      id: projectId,
+      type,
+      title,
+      itemCount: normalizedItems.length,
+      payLamports: payLamports.toString(),
+      fundingLamports: fundingLamports.toString(),
+      treasury,
+      memo: projectDepositMemo(projectId),
+      status: "funding",
+    },
   }, { status: 201 });
 }
