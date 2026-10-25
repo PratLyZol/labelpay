@@ -6,7 +6,7 @@ import sharp from "sharp";
 const spec = JSON.parse(readFileSync(resolve("seed/images.json"), "utf8")) as { classes: string[]; perClass: number };
 const sources = JSON.parse(readFileSync(resolve("seed/images.sources.json"), "utf8")) as Record<string, string[]>;
 const outputDirectory = resolve("public/img");
-const userAgent = "LabelPay-hackathon/0.1 (hackathon demo; contact via GitHub)";
+const userAgent = "Taskmaster-hackathon/0.1 (hackathon demo; contact via GitHub)";
 mkdirSync(outputDirectory, { recursive: true });
 
 function downloadUrl(source: string) {

@@ -1,4 +1,4 @@
-# LabelPay — label data, get judged by AI, get paid in SOL per label
+# Taskmaster — label data, get judged by AI, get paid in SOL per label
 
 HackTX 26 project. A first-pass model (**Gemini**, with structured JSON output) labels everything
 it is confident about; only the hard items are served to humans,

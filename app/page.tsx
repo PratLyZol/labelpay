@@ -39,19 +39,19 @@ const PROJECT_META = {
 const FAQ = [
   {
     question: "How does labeling work?",
-    answer: "Open a project, read its guidelines, and submit a label for each item. The result appears after submission.",
+    answer: "Open a project, read the guidelines, label each item.",
   },
   {
     question: "How is my work checked?",
-    answer: "Reference items, peer agreement, and behavior checks help assess labels. When AI judging is configured, a monitor also checks whether an answer is defensible.",
+    answer: "Hidden reference items, peer agreement, and an AI monitor that flags only indefensible answers.",
   },
   {
     question: "When do I get paid?",
-    answer: "Approved rewards are split between an instant wallet payment and a short escrow hold. This local demo records mock payouts.",
+    answer: "On approval. 70% hits your wallet instantly, 30% vests from escrow.",
   },
   {
     question: "What is the trust score?",
-    answer: "It tracks your labeling history and affects your pay multiplier. Payouts pause when the score falls below 25.",
+    answer: "Your track record. It sets your pay multiplier and pauses payouts below 25.",
   },
 ];
 
@@ -111,11 +111,11 @@ export default function ProjectsPage() {
             <h1 className="text-balance text-[58px] font-black leading-[0.88] tracking-[-0.085em] sm:text-[82px] lg:text-[92px] xl:text-[118px]">
               AI guesses.<br /><span className="display-serif font-normal italic">Humans know.</span>
             </h1>
-            <p className="mt-8 max-w-xl text-lg leading-7 sm:text-xl">Do the judgment calls machines still miss. Build a trusted work record and get paid in SOL for every approved label.</p>
+            <p className="mt-8 max-w-xl text-lg leading-7 sm:text-xl">Label what models can&apos;t. Get paid in SOL per approved label.</p>
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <Button size="lg" nativeButton={false} render={<Link href="/label" />}>Start a task <ArrowUpRight className="size-4" /></Button>
-            <Link href="#projects-heading" className="group inline-flex items-center gap-2 text-sm font-bold underline decoration-2 underline-offset-4">See open projects <ArrowRight className="size-4 transition group-hover:translate-x-1" /></Link>
+            <Link href="#projects-heading" className="group inline-flex items-center gap-2 text-sm font-bold underline decoration-2 underline-offset-4">Projects <ArrowRight className="size-4 transition group-hover:translate-x-1" /></Link>
           </div>
         </div>
 
@@ -126,28 +126,27 @@ export default function ProjectsPage() {
             </div>
           </div>
           <div className="gentle-float absolute left-[12%] top-[18%] w-48 -rotate-6 border-2 border-foreground bg-card p-4 shadow-[7px_7px_0_#171713] sm:w-56">
-            <p className="eyebrow">Model says</p><p className="mt-6 text-4xl font-black">67%</p><p className="mt-1 text-sm">Looks like a bicycle?</p>
+            <p className="eyebrow">Model says</p><p className="mt-6 text-4xl font-black">67%</p><p className="mt-1 text-sm">Bicycle?</p>
           </div>
           <div className="gentle-float absolute bottom-[15%] right-[10%] w-52 rotate-3 border-2 border-foreground bg-primary p-4 shadow-[7px_7px_0_#171713] [animation-delay:-2s] sm:w-60">
-            <p className="eyebrow">Human confirms</p><p className="mt-6 display-serif text-4xl italic">Motorcycle.</p><p className="mt-2 text-sm font-bold">Signal improved ↗</p>
+            <p className="eyebrow">Human confirms</p><p className="mt-6 display-serif text-4xl italic">Motorcycle.</p>
           </div>
-          <span className="absolute bottom-7 left-7 rounded-full border-2 border-foreground bg-background px-4 py-2 text-xs font-bold">Built for the calls that count</span>
         </div>
       </section>
 
       <div className="overflow-hidden border-y-2 border-foreground bg-secondary py-3">
         <div className="ticker-track flex w-max whitespace-nowrap text-sm font-black uppercase tracking-[0.16em]">
-          {[0, 1].map((copy) => <div key={copy} className="flex gap-8 pr-8"><span>Image tagging ✦</span><span>Model evaluation ✦</span><span>Human judgment ✦</span><span>Verified payouts ✦</span><span>Better data ✦</span></div>)}
+          {[0, 1, 2, 3].map((copy) => <div key={copy} className="flex gap-8 pr-8"><span>Label ✦</span><span>Verify ✦</span><span>Get paid ✦</span></div>)}
         </div>
       </div>
 
       <section aria-label="Your activity" className="mx-auto grid max-w-[1600px] border-x border-b border-foreground bg-foreground text-background sm:grid-cols-2 xl:grid-cols-4">
         {[
-          ["Tasks waiting", projects === null ? "—" : openTasks, "Across your queue"],
-          ["Labels shipped", session.labelsTotal ?? 0, "Your completed work"],
+          ["Tasks waiting", projects === null ? "—" : openTasks, ""],
+          ["Labels shipped", session.labelsTotal ?? 0, ""],
           ["SOL earned", sol(session.lamportsEarned ?? "0", 3), `${sol(session.escrowLamports ?? "0", 3)} in escrow`],
-          ["Trust score", `${Math.round(session.trust ?? 60)}/100`, session.paused ? "Payouts paused" : "Sets your multiplier"],
-        ].map(([label, value, note], index) => <div key={String(label)} className={`p-6 sm:p-8 ${index < 3 ? "border-b border-background/25 xl:border-b-0 xl:border-r" : ""}`}><p className="eyebrow text-background/55">{label}</p><p className="mt-5 text-4xl font-black leading-none tabular-nums sm:text-5xl">{value}</p><p className="mt-3 text-xs text-background/50">{note}</p></div>)}
+          ["Trust score", `${Math.round(session.trust ?? 60)}/100`, session.paused ? "Payouts paused" : ""],
+        ].map(([label, value, note], index) => <div key={String(label)} className={`p-6 sm:p-8 ${index < 3 ? "border-b border-background/25 xl:border-b-0 xl:border-r" : ""}`}><p className="eyebrow text-background/55">{label}</p><p className="mt-5 text-4xl font-black leading-none tabular-nums sm:text-5xl">{value}</p>{note ? <p className="mt-3 text-xs text-background/50">{note}</p> : null}</div>)}
       </section>
 
       <div className="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-14">
@@ -155,9 +154,8 @@ export default function ProjectsPage() {
       <section className="mt-24" aria-labelledby="projects-heading">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="eyebrow text-primary">Pick your signal</p>
+            <p className="eyebrow text-primary">Projects</p>
             <h2 id="projects-heading" className="mt-3 text-5xl font-black tracking-[-0.06em] sm:text-7xl">Open <span className="display-serif font-normal italic">projects.</span></h2>
-            <p className="mt-3 text-sm text-muted-foreground">Choose the work that fits your judgment.</p>
           </div>
           <div className="flex gap-1 border-2 border-foreground bg-card p-1" aria-label="Project status">
             {(["available", "completed"] as const).map((status) => (
@@ -246,7 +244,6 @@ export default function ProjectsPage() {
       <section className="mt-24 grid gap-8 border-t-2 border-foreground pt-10 md:grid-cols-[280px_minmax(0,1fr)]" aria-labelledby="faq-heading">
         <div>
           <h2 id="faq-heading" className="text-4xl font-black">Good <span className="display-serif font-normal italic">questions.</span></h2>
-          <p className="mt-1 text-sm text-muted-foreground">The basics before you start.</p>
         </div>
         <div className="divide-y divide-foreground/30 border-t-2 border-foreground">
           {FAQ.map(({ question, answer }, index) => (

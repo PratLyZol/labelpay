@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Fresh Ubuntu 24.04 Vultr instance -> running LabelPay with HTTPS. Run as root:
+# Fresh Ubuntu 24.04 Vultr instance -> running Taskmaster with HTTPS. Run as root:
 #   bash vultr.sh <git-repo-url> [domain]
 # With no domain, uses <public-ip>.sslip.io (free wildcard DNS) so Caddy can still issue a real cert.
 set -euo pipefail

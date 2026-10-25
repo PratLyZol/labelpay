@@ -19,7 +19,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex h-[72px] w-full max-w-[1600px] items-center gap-8 px-5 sm:px-8 lg:px-14">
           <Link href="/" className="group flex items-center gap-2.5 text-[18px] font-black tracking-[-0.05em]">
             <span className="flex size-9 -rotate-3 items-center justify-center rounded-full border-2 border-foreground bg-primary text-sm font-black transition-transform group-hover:rotate-3">LP</span>
-            <span>LabelPay<span className="text-primary">.</span></span>
+            <span>Taskmaster<span className="text-primary">.</span></span>
           </Link>
           <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
           {NAV.map(({ href, label }) => {
