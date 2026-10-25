@@ -6,6 +6,8 @@ services:
     environment:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       JUDGE_MOCK: "0"
+      JUDGE_MODEL: gemini-3.5-flash-lite
+      AUDIT_MODEL: gemini-3.8-flash
     expose:
       - "3000"
   caddy:
