@@ -51,6 +51,10 @@ Smoke-test the judge once credentials are in: `pnpm gemini:smoke` (runs a text v
 verdict). If an image cannot be loaded or Gemini is unavailable, it stays with humans; hidden
 reference checks still apply.
 
+For a local encrypted key in `secrets/gemini.env`, run
+`with-secrets secrets/gemini.env -- env JUDGE_MOCK=0 pnpm gemini:smoke` or replace the final command
+with `pnpm dev`. The `secrets/` directory is ignored by git.
+
 ### Demo script
 
 1. Open `/`, connect Phantom (set to Devnet), approve the sign-in signature.
