@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import bs58 from "bs58";
 import {
   address,
@@ -64,6 +64,18 @@ export default function NewProjectPage() {
   const items = useMemo(() => parseItems(rawItems), [rawItems]);
   const labels = useMemo(() => options.split(",").map((option) => option.trim()).filter(Boolean), [options]);
   const maximumBudget = Number(paySol || 0) * items.length * 1.5;
+
+  useEffect(() => {
+    if (!session.loaded || !session.wallet || created) return;
+    let cancelled = false;
+    fetch("/api/projects?funding=1", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!cancelled && data.draft) setCreated(data.draft);
+      })
+      .catch(() => undefined);
+    return () => { cancelled = true; };
+  }, [session.loaded, session.wallet, created]);
 
   const loadFile = async (file?: File) => {
     if (!file) return;

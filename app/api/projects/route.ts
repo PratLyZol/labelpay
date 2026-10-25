@@ -24,8 +24,40 @@ function solToLamports(value: string): bigint | null {
   return BigInt(match[1]) * 1_000_000_000n + BigInt((match[2] ?? "").padEnd(9, "0") || "0");
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const wallet = await requireWallet();
+  if (new URL(req.url).searchParams.get("funding") === "1") {
+    if (!wallet) return NextResponse.json({ error: "Connect and sign in with a wallet first." }, { status: 401 });
+    const [draft] = await sql<{
+      id: string;
+      type: "text" | "image";
+      title: string;
+      pay_lamports: string;
+      funding_lamports: string;
+      item_count: number;
+    }[]>`
+      SELECT s.id, s.type, s.title, s.pay_lamports::text, s.funding_lamports::text,
+             count(t.id)::int AS item_count
+      FROM task_sets s JOIN tasks t ON t.set_id = s.id
+      WHERE s.owner_wallet = ${wallet} AND s.status = 'funding'
+      GROUP BY s.id ORDER BY s.created_at DESC LIMIT 1`;
+    if (!draft) return NextResponse.json({ draft: null });
+    const treasury = await treasuryAddress();
+    if (!treasury) return NextResponse.json({ error: "The Devnet treasury is not configured." }, { status: 503 });
+    return NextResponse.json({
+      draft: {
+        id: draft.id,
+        type: draft.type,
+        title: draft.title,
+        itemCount: draft.item_count,
+        payLamports: draft.pay_lamports,
+        fundingLamports: draft.funding_lamports,
+        treasury,
+        memo: projectDepositMemo(draft.id),
+        status: "funding",
+      },
+    });
+  }
   const rows = await sql`
     SELECT s.id, s.type, s.title, s.guidelines, s.options, s.pay_lamports::text AS pay_lamports, s.min_latency_ms,
            s.owner_wallet, s.created_at, s.status,
