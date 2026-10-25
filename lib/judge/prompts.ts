@@ -57,8 +57,9 @@ export const MONITOR_SCHEMA = {
     confidence: { type: "number", minimum: 0, maximum: 1, description: "How sure you are about the severity call." },
     note: { type: "string", description: "One short sentence of feedback addressed to the worker. Neutral tone. If ok, say what made the item tricky or just acknowledge." },
     expected: { type: "string", description: "Your own best label, for the record. Informational only." },
+    expectedConfidence: { type: "number", minimum: 0, maximum: 1, description: "Probability that your expected label is the one a careful human annotator would choose." },
   },
-  required: ["severity", "confidence", "note", "expected"],
+  required: ["severity", "confidence", "note", "expected", "expectedConfidence"],
 } as const;
 
 export interface MonitorVerdict {
@@ -66,6 +67,7 @@ export interface MonitorVerdict {
   confidence: number;
   note: string;
   expected: string;
+  expectedConfidence: number;
 }
 
 const MONITOR_SYSTEM = `You are the quality monitor for a paid data-labeling platform. Humans are the source of truth here, not you: these items were routed to a human precisely because a model was not confident about them.

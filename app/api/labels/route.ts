@@ -46,6 +46,8 @@ export async function POST(req: Request) {
     minLatencyMs: set.min_latency_ms,
     isGold: task.is_gold,
     gold: task.gold_label,
+    modelLabel: task.model_label,
+    modelConfidence: task.model_confidence,
     monitor: judge.verdict,
     peerAnswers: peers.map((p) => p.answer),
     extraFlags: judge.flags,

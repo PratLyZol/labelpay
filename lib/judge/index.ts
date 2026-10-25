@@ -46,7 +46,17 @@ export async function monitorLabel(set: TaskSet, task: Task, answer: string): Pr
   };
   try {
     const { data, ms, model } = await judgeJson<MonitorVerdict>({ messages: buildMonitorMessages({ ...base, imageDataUrl }), schemaName: "monitor_verdict", schema: MONITOR_SCHEMA });
-    if (!["ok", "questionable", "absurd"].includes(data.severity) || !Number.isFinite(data.confidence) || typeof data.note !== "string") {
+    if (
+      !["ok", "questionable", "absurd"].includes(data.severity)
+      || !Number.isFinite(data.confidence)
+      || data.confidence < 0
+      || data.confidence > 1
+      || !set.options.includes(data.expected)
+      || !Number.isFinite(data.expectedConfidence)
+      || data.expectedConfidence < 0
+      || data.expectedConfidence > 1
+      || typeof data.note !== "string"
+    ) {
       throw new Error("Gemini returned an invalid monitor verdict");
     }
     return { verdict: data, ms, model, flags };
@@ -110,6 +120,7 @@ function mockMonitor(task: Task, answer: string): MonitorOutcome {
       confidence: 0.7,
       note: agrees ? "Consistent with the reference reading." : `Defensible; the reference reading was "${ref}".`,
       expected: ref,
+      expectedConfidence: 0.7,
     },
     ms,
     model: "mock",

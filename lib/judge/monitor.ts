@@ -8,6 +8,8 @@ export type Flag =
   | "incoherent"
   | "questionable"
   | "consensus_disagree"
+  | "model_match"
+  | "model_disagree"
   | "judge_unavailable"
   | "vision_unavailable";
 
@@ -18,6 +20,8 @@ export interface MonitorInput {
   minLatencyMs: number;
   isGold: boolean;
   gold: string | null;
+  modelLabel: string | null;
+  modelConfidence: number | null;
   monitor: MonitorVerdict | null;
   /** answers other workers gave on this same item */
   peerAnswers: string[];
@@ -48,9 +52,10 @@ export function trustMultiplier(trust: number): number {
 }
 
 /**
- * Pay decision. Humans are the source of truth on routed items, so the default is approve.
+ * Pay and trust decision. Humans are the source of truth on routed items, so the default is approve.
  * Only three things block pay: hidden-gold misses, behavioral fraud signals, and answers the
- * monitor calls absurd with high confidence. "Questionable" and peer disagreement only nudge trust.
+ * monitor calls absurd with high confidence. A match with Gemini earns a confidence-weighted
+ * trust increase; a defensible disagreement with an uncertain model does not automatically hurt trust.
  */
 export function evaluate(input: MonitorInput): MonitorResult {
   const flags: Flag[] = [...(input.extraFlags ?? [])];
@@ -61,6 +66,17 @@ export function evaluate(input: MonitorInput): MonitorResult {
 
   const goldMiss = input.isGold && input.gold != null && norm(input.gold) !== norm(input.answer);
   if (goldMiss) flags.push("gold_miss");
+
+  // Verified references outrank Gemini. Otherwise compare against Gemini's first-pass label,
+  // falling back to the submission-time monitor when routing has not completed yet.
+  const referenceLabel = input.isGold && input.gold != null
+    ? input.gold
+    : input.modelLabel ?? input.monitor?.expected ?? null;
+  const referenceConfidence = input.isGold && input.gold != null
+    ? 1
+    : clamp01(input.modelConfidence ?? input.monitor?.expectedConfidence ?? 0);
+  const modelMatch = referenceLabel != null && norm(referenceLabel) === norm(input.answer);
+  if (referenceLabel != null) flags.push(modelMatch ? "model_match" : "model_disagree");
 
   // Peer consensus: flag when at least two others answered and a clear majority disagrees.
   if (input.peerAnswers.length >= 2) {
@@ -93,9 +109,14 @@ export function evaluate(input: MonitorInput): MonitorResult {
     reason = `Missed a verified reference item (reference: "${input.gold}"). ${input.monitor?.note ?? ""}`.trim();
   }
 
-  // Trust: EMA toward 100 on approve / 0 on reject, minus penalties for hard flags; soft flags nudge.
-  const target = verdict === "approve" ? 100 : 0;
-  let trust = input.worker.trust_score + ALPHA * (target - input.worker.trust_score);
+  // A rejected answer moves trust toward zero. Approved answers move toward 100 only when
+  // they match the reference, scaled by Gemini's confidence in that reference.
+  let trust = input.worker.trust_score;
+  if (verdict === "reject") {
+    trust += ALPHA * (0 - trust);
+  } else if (modelMatch) {
+    trust += ALPHA * referenceConfidence * (100 - trust);
+  }
   const hard = flags.filter((f) => HARD_FLAGS.includes(f)).length;
   const soft = flags.filter((f) => f === "questionable" || f === "consensus_disagree").length;
   trust -= 8 * hard + 2 * soft;
