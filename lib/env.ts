@@ -10,7 +10,7 @@ export const env = {
   /** Share of each approved payout sent to the wallet immediately; the rest vests in escrow. */
   INSTANT_PAY_PCT: Math.min(100, Math.max(0, Number(process.env.INSTANT_PAY_PCT ?? "70"))),
   /** Seconds a vesting payout sits in the worker's on-chain escrow before release. */
-  ESCROW_HOLD_SECONDS: Number(process.env.ESCROW_HOLD_SECONDS ?? "90"),
+  ESCROW_HOLD_SECONDS: Number(process.env.ESCROW_HOLD_SECONDS ?? "60"),
   SESSION_SECRET: process.env.SESSION_SECRET ?? "dev-only-secret-change-me-please-32chars!!",
   ALLOW_INSECURE_LOGIN: process.env.ALLOW_INSECURE_LOGIN === "1",
 };
