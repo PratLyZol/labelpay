@@ -131,7 +131,9 @@ point its A record at the VM and pass it as the second argument instead.
 
 `.github/workflows/deploy.yml` runs on every push to `main`: it SSHes into the Vultr box, resets
 `/opt/labelpay` to `origin/main` after typecheck, lint, and build pass, rebuilds the container, runs
-the idempotent migration and routing, and checks `/api/stats` comes back 200. If you use a custom
+the idempotent migration and a Gemini smoke test, starts routing in the app container, and checks
+that `/api/stats` reports a live Gemini judge. The API key is passed from a GitHub Actions secret
+at deployment time; it is not written to a plaintext server file. If you use a custom
 domain, set the optional `VULTR_DOMAIN` GitHub secret to that hostname. One-time setup:
 
 ```bash
@@ -139,6 +141,7 @@ ssh-keygen -t ed25519 -f ~/.ssh/labelpay_deploy -N "" -C labelpay-deploy
 ssh-copy-id -i ~/.ssh/labelpay_deploy.pub root@<server-ip>
 gh secret set VULTR_HOST --body <server-ip>
 gh secret set VULTR_SSH_KEY < ~/.ssh/labelpay_deploy
+# also set GEMINI_API_KEY as a GitHub Actions secret from your encrypted local copy
 ```
 
 ## Scripts

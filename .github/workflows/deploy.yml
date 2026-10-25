@@ -46,9 +46,12 @@ jobs:
         env:
           HOST: ${{ secrets.VULTR_HOST }}
           SHA: ${{ github.sha }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "root@$HOST" \
-            "cd /opt/labelpay && git fetch --quiet origin $SHA && git reset --hard $SHA --quiet && bash deploy/update.sh"
+          set -euo pipefail
+          if [ -z "$GEMINI_API_KEY" ]; then echo "GEMINI_API_KEY secret is missing"; exit 1; fi
+          printf '%s\n' "$GEMINI_API_KEY" | ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "root@$HOST" \
+            "IFS= read -r GEMINI_API_KEY && export GEMINI_API_KEY && cd /opt/labelpay && git fetch --quiet origin $SHA && git reset --hard $SHA --quiet && bash deploy/update.sh"
 
       - name: Smoke check
         env:
@@ -58,7 +61,12 @@ jobs:
           DOMAIN=${DOMAIN:-$HOST.sslip.io}
           for i in $(seq 1 20); do
             code=$(curl -s -o /dev/null -w '%{http_code}' "https://$DOMAIN/api/stats" || true)
-            [ "$code" = "200" ] && echo "ok: /api/stats 200" && exit 0
+            if [ "$code" = "200" ]; then
+              body=$(curl -fsS "https://$DOMAIN/api/stats")
+              if echo "$body" | jq -e '.judge.mock == false and (.judge.model | startswith("gemini-"))' >/dev/null; then
+                echo "ok: Gemini judge active"; exit 0
+              fi
+            fi
             sleep 3
           done
           echo "site did not come back"; exit 1

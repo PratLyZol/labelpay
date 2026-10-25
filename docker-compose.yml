@@ -3,6 +3,9 @@ services:
     build: .
     restart: unless-stopped
     env_file: .env
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      JUDGE_MOCK: "0"
     expose:
       - "3000"
   caddy:
