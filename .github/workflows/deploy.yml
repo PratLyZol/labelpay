@@ -64,8 +64,8 @@ jobs:
             code=$(curl -s -o /dev/null -w '%{http_code}' "https://$DOMAIN/api/stats" || true)
             if [ "$code" = "200" ]; then
               body=$(curl -fsS "https://$DOMAIN/api/stats")
-              if echo "$body" | jq -e '.judge.mock == false and (.judge.model | startswith("gemini-"))' >/dev/null; then
-                echo "ok: Gemini judge active"; exit 0
+              if echo "$body" | jq -e '.judge.mock == false and (.judge.model | startswith("gemini-")) and .solana.network == "testnet"' >/dev/null; then
+                echo "ok: Gemini judge active on Solana testnet"; exit 0
               fi
             fi
             sleep 3

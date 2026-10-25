@@ -14,6 +14,6 @@ async function main() {
   secret64.set(pubBytes, 32);
   console.log("Treasury address:", s.address);
   console.log("TREASURY_SECRET_KEY=" + bs58.encode(secret64));
-  console.log(`Fund it: solana airdrop 5 ${s.address} --url devnet   (or https://faucet.solana.com)`);
+  console.log(`Fund it: solana airdrop 1 ${s.address} --url testnet`);
 }
 main();

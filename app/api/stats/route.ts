@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sql } from "@/lib/db/client";
 import { treasuryAddress, treasuryBalanceLamports } from "@/lib/solana/treasury";
 import { env } from "@/lib/env";
+import { SOLANA_NETWORK } from "@/lib/solana/network";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,7 @@ export async function GET() {
     recent,
     byType,
     treasury,
+    solana: { network: SOLANA_NETWORK },
     judge: { model: env.JUDGE_MOCK ? "mock" : env.JUDGE_MODEL, mock: env.JUDGE_MOCK },
     escrow: { instantPct: env.INSTANT_PAY_PCT, holdSeconds: env.ESCROW_HOLD_SECONDS },
     routing,

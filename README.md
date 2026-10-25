@@ -5,7 +5,7 @@ it is confident about; only the hard items are served to humans,
 who connect a Solana wallet and label them (text sentiment, pairwise LLM-response ratings, image
 subjects). An agent monitors the work rather than grading it: behavioral fraud signals, hidden gold
 items, peer consensus, a coherence check that only flags absurd answers, and a periodic bigger-model
-audit. Approved labels pay **Solana devnet** SOL immediately, 70% to the wallet and 30% into a
+audit. Approved labels pay **Solana testnet** SOL immediately, 70% to the wallet and 30% into a
 per-worker on-chain escrow that vests or gets slashed. Every label, verdict, and payout is a row in
 **Tiger Data** hypertables with continuous aggregates powering the live dashboard. Deployed with
 Docker + Caddy on a **Vultr** VM.
@@ -43,7 +43,7 @@ Without `TREASURY_SECRET_KEY` payouts are recorded as `mock` transactions. The w
 |---|---|
 | `DATABASE_URL` | Tiger Cloud console → service → connection string ($1,000 MLH credits via mlh.link/tigerdata-quickstart) |
 | `GEMINI_API_KEY` | Create an API key in [Google AI Studio](https://aistudio.google.com/app/apikey). Keep it on the server; never put it in client code or git. |
-| `TREASURY_SECRET_KEY` | `pnpm keygen` prints an address + base58 secret. Fund it: `solana airdrop 5 <address> --url devnet` (repeat) or faucet.solana.com |
+| `TREASURY_SECRET_KEY` | `pnpm keygen` prints an address + base58 secret. Fund it: `solana airdrop 1 <address> --url testnet` |
 | `SESSION_SECRET` | any 32+ random characters |
 | `ALLOW_INSECURE_LOGIN` | `1` only for local curl testing (skips wallet signature check). Keep `0` in production |
 
@@ -57,7 +57,7 @@ with `pnpm dev`. The `secrets/` directory is ignored by git.
 
 ### Demo script
 
-1. Open `/`, connect Phantom (set to Devnet), approve the sign-in signature.
+1. Open `/`, connect Phantom (set to Testnet), approve the sign-in signature.
 2. `/label`: note the "Why you" line on each card (model confidence + rationale). Label 5–6 text
    items carefully. Watch the right panel: monitor note in ~300–900 ms, 70% paid with an Explorer
    link, 30% locked in your escrow account, then released after the hold.
@@ -108,7 +108,7 @@ Each approved payout is split (`INSTANT_PAY_PCT`, default 70/30):
 - **Slash**: a missed hidden gold item flags all of a worker's vesting holds; the sweeper moves them
   escrow → treasury instead. A worker whose trust is under 25 at release time is slashed too.
 
-Every leg is a real devnet transaction with an Explorer link, and the escrow account itself is
+Every leg is a real testnet transaction with an Explorer link, and the escrow account itself is
 viewable on Explorer. First-time recipients get an automatic rent-exemption top-up from the treasury
 so small payouts never fail on a fresh wallet. This is custodial escrow (the server holds the
 treasury key); an Anchor program with a worker-side `claim` is the trustless roadmap item.

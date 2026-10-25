@@ -8,6 +8,8 @@ services:
       JUDGE_MOCK: "0"
       JUDGE_MODEL: gemini-3.5-flash-lite
       AUDIT_MODEL: gemini-3.8-flash
+      # Keep browser and payout infrastructure on the same Solana cluster.
+      SOLANA_RPC_URL: https://api.testnet.solana.com
       # Demo setting: keep this explicit so a server .env value cannot silently restore the production delay.
       ESCROW_HOLD_SECONDS: "60"
     expose:

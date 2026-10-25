@@ -89,7 +89,7 @@ export function WalletButton() {
         <div className="absolute right-0 z-30 mt-2 w-64 rounded-xl border bg-popover p-3 shadow-lg">
           {connected ? (
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Connected (devnet)</p>
+              <p className="text-xs text-muted-foreground">Connected (testnet)</p>
               <p className="font-mono text-sm break-all">{address}</p>
               {!signedIn && (
                 <Button size="sm" className="w-full" onClick={signIn} disabled={busy}>
@@ -105,7 +105,7 @@ export function WalletButton() {
               <p className="text-xs text-muted-foreground">Choose a wallet</p>
               {wallets.length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  No wallet detected. Install <a className="underline" href="https://phantom.app" target="_blank" rel="noreferrer">Phantom</a> and switch it to Devnet.
+                  No wallet detected. Install <a className="underline" href="https://phantom.app" target="_blank" rel="noreferrer">Phantom</a> and switch it to Testnet.
                 </p>
               )}
               {wallets.map((w) => (

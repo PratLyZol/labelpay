@@ -236,7 +236,7 @@ export default function ProjectsPage() {
         {!session.wallet && session.loaded && (
           <div className="mt-4 flex items-center gap-2 rounded-lg border bg-card px-4 py-3 text-xs text-muted-foreground">
             <Wallet className="size-4 shrink-0" aria-hidden="true" />
-            Connect your devnet wallet to start a task.
+            Connect your testnet wallet to start a task.
           </div>
         )}
       </section>
