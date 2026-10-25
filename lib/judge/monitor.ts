@@ -69,13 +69,16 @@ export function evaluate(input: MonitorInput): MonitorResult {
 
   // Verified references outrank Gemini. Otherwise compare against Gemini's first-pass label,
   // falling back to the submission-time monitor when routing has not completed yet.
-  const referenceLabel = input.isGold && input.gold != null
-    ? input.gold
-    : input.modelLabel ?? input.monitor?.expected ?? null;
-  const referenceConfidence = input.isGold && input.gold != null
-    ? 1
-    : clamp01(input.modelConfidence ?? input.monitor?.expectedConfidence ?? 0);
-  const modelMatch = referenceLabel != null && norm(referenceLabel) === norm(input.answer);
+  const references = input.isGold && input.gold != null
+    ? [{ label: input.gold, confidence: 1 }]
+    : [
+        input.modelLabel ? { label: input.modelLabel, confidence: clamp01(input.modelConfidence ?? 0) } : null,
+        input.monitor?.expected ? { label: input.monitor.expected, confidence: clamp01(input.monitor.expectedConfidence) } : null,
+      ].filter((reference): reference is { label: string; confidence: number } => reference !== null);
+  const matchedReference = references.find((reference) => norm(reference.label) === norm(input.answer));
+  const referenceLabel = references[0]?.label ?? null;
+  const referenceConfidence = matchedReference?.confidence ?? references[0]?.confidence ?? 0;
+  const modelMatch = matchedReference != null;
   if (referenceLabel != null) flags.push(modelMatch ? "model_match" : "model_disagree");
 
   // Peer consensus: flag when at least two others answered and a clear majority disagrees.

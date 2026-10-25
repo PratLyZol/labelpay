@@ -90,10 +90,13 @@ export function buildMonitorMessages(args: {
   modelConfidence?: number | null;
   imageDataUrl?: string;
 }): ChatMessage[] {
+  const labels = args.type === "image"
+    ? `SUGGESTED LABELS (not exhaustive; a worker may enter a more accurate label): ${args.options.join(" | ")}`
+    : `ALLOWED LABELS: ${args.options.join(" | ")}`;
   const lines = [
     `TASK SET: ${args.title} (${args.type})`,
     `GUIDELINES: ${args.guidelines}`,
-    `ALLOWED LABELS: ${args.options.join(" | ")}`,
+    labels,
     describeItem(args.type, args.payload),
   ];
   if (args.modelLabel) lines.push(`FIRST-PASS MODEL GUESS: ${args.modelLabel} (confidence ${args.modelConfidence?.toFixed(2) ?? "?"}; this item was routed to a human because the model was unsure)`);

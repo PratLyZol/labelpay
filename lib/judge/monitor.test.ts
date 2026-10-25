@@ -32,6 +32,26 @@ test("a defensible disagreement is retained without an automatic trust penalty",
   assert.ok(result.flags.includes("model_disagree"));
 });
 
+test("a free-text answer can match Gemini's submission-time label", () => {
+  const result = evaluate({
+    ...base,
+    answer: "building",
+    modelLabel: "car",
+    modelConfidence: 0.3,
+    monitor: {
+      severity: "ok",
+      confidence: 0.95,
+      note: "The main subject is a building.",
+      expected: "building",
+      expectedConfidence: 0.95,
+    },
+  });
+
+  assert.equal(result.verdict, "approve");
+  assert.equal(result.trustAfter, 64.6);
+  assert.ok(result.flags.includes("model_match"));
+});
+
 test("a verified reference outranks Gemini", () => {
   const result = evaluate({
     ...base,

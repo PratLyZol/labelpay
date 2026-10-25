@@ -3,7 +3,7 @@
     "id": "image-objects",
     "type": "image",
     "title": "What is the main subject of the photo?",
-    "guidelines": "Choose the single label that best describes the main subject of the image. If several subjects appear, pick the one that is largest or most central.",
+    "guidelines": "Label the main subject of the image. Choose a suggestion when it fits; otherwise enter a short, precise label. If several subjects appear, label the largest or most central one.",
     "options": ["cat", "dog", "bird", "car", "bicycle", "airplane"],
     "pay_lamports": 1500000,
     "min_latency_ms": 1200

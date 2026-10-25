@@ -32,7 +32,9 @@ export async function auditWorker(wallet: string, force = false) {
   if (!force && w.labels_total - w.last_audit_label_count < AUDIT_EVERY_N_LABELS) return null;
 
   const rows = await sql<Row[]>`
-    SELECT s.type, s.title, s.guidelines, s.options, t.payload, le.answer, t.gold_label AS gold, t.model_label, le.latency_ms, le.verdict
+    SELECT s.type, s.title, s.guidelines, s.options, t.payload, le.answer,
+           CASE WHEN t.is_gold THEN t.gold_label ELSE NULL END AS gold,
+           t.model_label, le.latency_ms, le.verdict
     FROM label_events le JOIN tasks t ON t.id = le.task_id JOIN task_sets s ON s.id = t.set_id
     WHERE le.worker = ${wallet} ORDER BY le.ts DESC LIMIT ${AUDIT_BATCH}`;
   if (rows.length < 3) return null;

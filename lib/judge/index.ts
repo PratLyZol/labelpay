@@ -40,7 +40,7 @@ export async function monitorLabel(set: TaskSet, task: Task, answer: string): Pr
     options: set.options,
     payload: task.payload,
     answer,
-    gold: task.gold_label,
+    gold: task.is_gold ? task.gold_label : null,
     modelLabel: task.model_label,
     modelConfidence: task.model_confidence,
   };
@@ -51,7 +51,7 @@ export async function monitorLabel(set: TaskSet, task: Task, answer: string): Pr
       || !Number.isFinite(data.confidence)
       || data.confidence < 0
       || data.confidence > 1
-      || !set.options.includes(data.expected)
+      || (set.type !== "image" && !set.options.includes(data.expected))
       || !Number.isFinite(data.expectedConfidence)
       || data.expectedConfidence < 0
       || data.expectedConfidence > 1

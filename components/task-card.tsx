@@ -14,18 +14,22 @@ const TYPE_META = {
 
 export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit: (answer: string) => void; busy: boolean }) {
   const [choice, setChoice] = useState<string | null>(null);
+  const [customLabel, setCustomLabel] = useState("");
   const meta = TYPE_META[task.type];
   const TypeIcon = meta.icon;
 
   const advance = () => {
-    if (choice && !busy) onSubmit(choice);
+    const answer = customLabel.trim() || choice;
+    if (answer && !busy) onSubmit(answer);
   };
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (busy) return;
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
       const optionNumber = Number(event.key);
       if (optionNumber >= 1 && optionNumber <= task.options.length) {
+        setCustomLabel("");
         setChoice(task.options[optionNumber - 1]);
         return;
       }
@@ -47,7 +51,7 @@ export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit:
           </span>
           <div>
             <p className="text-sm font-medium">{task.title}</p>
-            <p className="text-xs text-muted-foreground">{meta.label} · Choose one answer</p>
+            <p className="text-xs text-muted-foreground">{meta.label} · {task.type === "image" ? "Choose a suggestion or enter your own" : "Choose one answer"}</p>
           </div>
         </div>
         <span className="rounded-full border px-3 py-1 text-xs tabular-nums text-muted-foreground">{sol(task.payLamports, 3)} / card</span>
@@ -96,7 +100,7 @@ export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit:
             {task.options.map((option, index) => {
               const selected = choice === option;
               return (
-                <button key={option} type="button" onClick={() => setChoice(option)} disabled={busy} aria-pressed={selected} className={`flex min-h-14 items-center gap-3 rounded-xl border px-4 text-left text-sm font-medium capitalize transition duration-200 disabled:opacity-60 ${selected ? "border-primary bg-accent text-accent-foreground ring-1 ring-primary" : "bg-[#101619] hover:border-input hover:bg-muted/50"}`}>
+                <button key={option} type="button" onClick={() => { setCustomLabel(""); setChoice(option); }} disabled={busy} aria-pressed={selected} className={`flex min-h-14 items-center gap-3 rounded-xl border px-4 text-left text-sm font-medium capitalize transition duration-200 disabled:opacity-60 ${selected ? "border-primary bg-accent text-accent-foreground ring-1 ring-primary" : "bg-[#101619] hover:border-input hover:bg-muted/50"}`}>
                   <span className={`flex size-6 shrink-0 items-center justify-center rounded-md text-[11px] ${selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{index + 1}</span>
                   {option}
                   {selected && <Check className="ml-auto size-4 text-primary" aria-hidden="true" />}
@@ -104,6 +108,24 @@ export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit:
               );
             })}
           </div>
+        )}
+
+        {task.type === "image" && (
+          <form className="mt-4" onSubmit={(event) => { event.preventDefault(); advance(); }}>
+            <label htmlFor={`custom-label-${task.id}`} className="mb-2 block text-xs font-medium text-muted-foreground">Not listed? Enter the correct label</label>
+            <input
+              id={`custom-label-${task.id}`}
+              name="customLabel"
+              type="text"
+              value={customLabel}
+              maxLength={64}
+              autoComplete="off"
+              disabled={busy}
+              placeholder="e.g. building, motorcycle, tree"
+              onChange={(event) => { setCustomLabel(event.target.value); setChoice(null); }}
+              className="h-12 w-full rounded-xl border bg-[#0f1517] px-4 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-60"
+            />
+          </form>
         )}
 
         {task.type === "pairwise" && task.options.includes("tie") && (
@@ -123,8 +145,8 @@ export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit:
       </div>
 
       <footer className="flex flex-wrap items-center justify-between gap-4 border-t bg-[#101619] px-5 py-4 sm:px-7">
-        <p className="text-xs text-muted-foreground"><span className="hidden sm:inline">Press 1–{task.options.length} to select · </span>Right arrow or Enter to continue</p>
-        <Button size="lg" onClick={advance} disabled={!choice || busy} className="min-w-40">
+        <p className="text-xs text-muted-foreground"><span className="hidden sm:inline">Press 1–{task.options.length} to select · </span>{task.type === "image" ? "Or type a better label · " : ""}Right arrow or Enter to continue</p>
+        <Button size="lg" onClick={advance} disabled={!(customLabel.trim() || choice) || busy} className="min-w-40">
           {busy ? "Checking…" : "Submit & next"}<ArrowRight className="size-4" aria-hidden="true" />
         </Button>
       </footer>

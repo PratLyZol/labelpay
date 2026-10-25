@@ -25,10 +25,11 @@ async function upsertSet(set: SetSpec) {
 
 async function upsertTasks(setId: string, rows: { id: string; payload: unknown; gold: string }[], allGold = false) {
   for (const [i, r] of rows.entries()) {
-    const gold = allGold || isGoldIndex(i, rows.length);
+    const isGold = allGold || isGoldIndex(i, rows.length);
+    const goldLabel = isGold ? r.gold : null;
     await sql`
       INSERT INTO tasks (id, set_id, payload, gold_label, is_gold, active)
-      VALUES (${r.id}, ${setId}, ${sql.json(r.payload as never)}, ${r.gold}, ${gold}, true)
+      VALUES (${r.id}, ${setId}, ${sql.json(r.payload as never)}, ${goldLabel}, ${isGold}, true)
       ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, gold_label = EXCLUDED.gold_label, is_gold = EXCLUDED.is_gold, active = true`;
   }
   console.log(`${setId}: ${rows.length} tasks (${rows.filter((_, i) => allGold || isGoldIndex(i, rows.length)).length} gold)`);
@@ -47,7 +48,15 @@ async function main() {
   await upsertSet(img.set);
   if (existsSync(resolve("seed/images.manifest.json"))) {
     const manifest = read<{ src: string; gold: string; alt: string; source?: string }[]>("seed/images.manifest.json");
-    if (manifest.length !== img.set.options.length * img.perClass || manifest.some((item) => !img.set.options.includes(item.gold))) {
+    const classCounts = new Map(img.set.options.map((option) => [option, 0]));
+    for (const item of manifest) classCounts.set(item.gold, (classCounts.get(item.gold) ?? 0) + 1);
+    const validManifest = manifest.length === img.set.options.length * img.perClass
+      && manifest.every((item) => img.set.options.includes(item.gold))
+      && [...classCounts.values()].every((count) => count === img.perClass)
+      && new Set(manifest.map((item) => item.src)).size === manifest.length
+      && new Set(manifest.map((item) => item.source)).size === manifest.length
+      && manifest.every((item) => item.source && existsSync(resolve("public", item.src.replace(/^\//, ""))));
+    if (!validManifest) {
       throw new Error("Invalid image manifest; regenerate it with `pnpm images`");
     }
     const rows = manifest.map((m, i) => ({ id: `${img.set.id}-v2-${i + 1}`, payload: { src: m.src, alt: m.alt }, gold: m.gold }));

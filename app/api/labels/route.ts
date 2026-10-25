@@ -14,7 +14,7 @@ import type { Task, TaskSet, Worker } from "@/lib/db/types";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const Body = z.object({ taskId: z.string().min(1), answer: z.string().min(1).max(64) });
+const Body = z.object({ taskId: z.string().min(1), answer: z.string().trim().min(1).max(64) });
 
 export async function POST(req: Request) {
   const wallet = await requireWallet();
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   const [set] = await sql<TaskSet[]>`SELECT * FROM task_sets WHERE id = ${task.set_id}`;
   const [dup] = await sql`SELECT 1 FROM label_events WHERE task_id = ${taskId} AND worker = ${wallet} LIMIT 1`;
   if (dup) return NextResponse.json({ error: "already labeled" }, { status: 409 });
-  if (!set.options.map((o) => o.toLowerCase()).includes(answer.toLowerCase()))
+  if (set.type !== "image" && !set.options.map((o) => o.toLowerCase()).includes(answer.toLowerCase()))
     return NextResponse.json({ error: "answer not in allowed labels" }, { status: 400 });
 
   const [judge, peers] = await Promise.all([
