@@ -146,8 +146,24 @@ export async function sweepEscrow() {
   return groups.size;
 }
 
+/**
+ * Re-enqueue instant and escrow_fund payouts that exhausted their retries (for example while the
+ * treasury was empty or pointed at the wrong cluster). Failed releases/slashes are skipped: the
+ * queue already put their holds back, so the sweeper settles them again on its own.
+ */
+export async function retryFailedPayouts(worker?: string) {
+  const rows = await sql<{ id: string; worker: string; lamports: string; kind: PayoutKind }[]>`
+    UPDATE payouts SET status = 'pending', error = NULL
+    WHERE status = 'failed' AND kind IN ('instant', 'escrow_fund')
+      AND (${worker ?? null}::text IS NULL OR worker = ${worker ?? null})
+    RETURNING id::text, worker, lamports::text, kind`;
+  for (const r of rows) payoutQueue.enqueue({ payoutId: r.id, worker: r.worker, lamports: BigInt(r.lamports), kind: r.kind });
+  return rows.length;
+}
+
 export function startEscrowSweeper() {
   if (globalThis.__escrowSweeper) return;
+  retryFailedPayouts().then((n) => n && console.log(`[payout] requeued ${n} failed payout(s)`)).catch((e) => console.error("[payout retry]", (e as Error).message));
   globalThis.__escrowSweeper = setInterval(() => {
     sweepEscrow().catch((e) => console.error("[escrow sweep]", (e as Error).message));
   }, Math.max(5, Math.min(30, env.ESCROW_HOLD_SECONDS / 3)) * 1000);
