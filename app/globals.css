@@ -4,29 +4,29 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --card: #ffffff;
-  --card-foreground: #171717;
-  --popover: #ffffff;
-  --popover-foreground: #12101c;
-  --primary: #4f46e5;
-  --primary-foreground: #ffffff;
-  --secondary: #f5f5f5;
-  --secondary-foreground: #262626;
-  --muted: #f7f7f8;
-  --muted-foreground: #737373;
-  --accent: #eef2ff;
-  --accent-foreground: #3730a3;
+  --background: #f4f1e8;
+  --foreground: #171713;
+  --card: #fffdf7;
+  --card-foreground: #171713;
+  --popover: #fffdf7;
+  --popover-foreground: #171713;
+  --primary: #ff5c35;
+  --primary-foreground: #171713;
+  --secondary: #d9ff57;
+  --secondary-foreground: #171713;
+  --muted: #e9e5da;
+  --muted-foreground: #6d6a61;
+  --accent: #d9ff57;
+  --accent-foreground: #171713;
   --destructive: #d93025;
-  --border: #e5e7eb;
-  --input: #d1d5db;
-  --ring: #4f46e5;
-  --radius: 0.5rem;
+  --border: #c9c4b8;
+  --input: #a9a398;
+  --ring: #ff5c35;
+  --radius: 0.35rem;
   --sol: #14f195;
   --sol-2: #9945ff;
-  --brand: #4f46e5;
-  --sidebar: #ffffff;
+  --brand: #ff5c35;
+  --sidebar: #fffdf7;
 }
 
 @theme inline {
@@ -63,8 +63,8 @@
 @layer base {
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background text-foreground; font-family: var(--font-sans); }
-  h1, h2, h3 { letter-spacing: -0.035em; }
-  ::selection { background: #c7d2fe; color: #1e1b4b; }
+  h1, h2, h3 { letter-spacing: -0.055em; }
+  ::selection { background: #d9ff57; color: #171713; }
 }
 
 @utility eyebrow {
@@ -81,10 +81,35 @@
   to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
+@keyframes signal-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ticker-slide {
+  to { transform: translateX(-50%); }
+}
+
+@keyframes gentle-float {
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+.display-serif { font-family: Georgia, "Times New Roman", serif; }
+
+.paper-grid {
+  background-image:
+    linear-gradient(rgba(23, 23, 19, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23, 23, 19, 0.055) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.signal-orbit { animation: signal-orbit 16s linear infinite; }
+.gentle-float { animation: gentle-float 5s ease-in-out infinite; }
+.ticker-track { animation: ticker-slide 24s linear infinite; }
+
 .flash-card-enter {
   animation: flash-card-enter 240ms ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flash-card-enter { animation: none; }
+  .flash-card-enter, .signal-orbit, .gentle-float, .ticker-track { animation: none; }
 }

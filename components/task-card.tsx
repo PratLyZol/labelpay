@@ -43,10 +43,10 @@ export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit:
   }, [busy, choice, onSubmit, task.options]);
 
   return (
-    <article className="flash-card-enter overflow-hidden rounded-lg border bg-card shadow-[0_12px_35px_rgba(15,23,42,0.06)]">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-7">
+    <article className="flash-card-enter overflow-hidden border-2 border-foreground bg-card shadow-[8px_8px_0_var(--foreground)]">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-foreground bg-secondary px-5 py-4 sm:px-7">
         <div className="flex items-center gap-3">
-          <span className="flex size-8 items-center justify-center rounded-md border bg-white text-muted-foreground shadow-sm">
+          <span className="flex size-9 -rotate-3 items-center justify-center rounded-full border-2 border-foreground bg-primary text-foreground">
             <TypeIcon className="size-4" strokeWidth={1.8} aria-hidden="true" />
           </span>
           <div>
@@ -54,20 +54,20 @@ export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit:
             <p className="text-xs text-muted-foreground">{meta.label} · {task.type === "image" ? "Choose a suggestion or enter your own" : "Choose one answer"}</p>
           </div>
         </div>
-        <span className="rounded-full border px-3 py-1 text-xs tabular-nums text-muted-foreground">{sol(task.payLamports, 3)} / card</span>
+        <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-bold tabular-nums">{sol(task.payLamports, 3)} / card</span>
       </header>
 
       <div className="px-5 py-6 sm:px-7 sm:py-8">
         {task.type === "text" && (
-          <div className="flex min-h-[250px] items-center justify-center rounded-lg border bg-gray-50 px-6 py-10 sm:px-12">
-            <blockquote className="max-w-3xl text-center text-2xl font-medium leading-[1.45] tracking-[-0.025em] sm:text-[30px]">
+          <div className="flex min-h-[250px] items-center justify-center border-2 border-foreground bg-background px-6 py-10 sm:px-12">
+            <blockquote className="display-serif max-w-3xl text-center text-2xl leading-[1.45] sm:text-[32px]">
               “{(task.payload as TextPayload).text}”
             </blockquote>
           </div>
         )}
 
         {task.type === "image" && (
-          <div className="overflow-hidden rounded-lg border bg-gray-50">
+          <div className="overflow-hidden border-2 border-foreground bg-background">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={(task.payload as ImagePayload).src} alt={(task.payload as ImagePayload).alt ?? "Photo to label"} className="mx-auto h-[260px] w-full object-contain sm:h-[390px]" />
           </div>
@@ -100,8 +100,8 @@ export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit:
             {task.options.map((option, index) => {
               const selected = choice === option;
               return (
-                <button key={option} type="button" onClick={() => { setCustomLabel(""); setChoice(option); }} disabled={busy} aria-pressed={selected} className={`flex min-h-14 items-center gap-3 rounded-md border px-4 text-left text-sm font-medium capitalize transition duration-200 disabled:opacity-60 ${selected ? "border-primary bg-indigo-50 text-indigo-950 ring-1 ring-primary" : "bg-white hover:border-gray-300 hover:bg-gray-50"}`}>
-                  <span className={`flex size-6 shrink-0 items-center justify-center rounded-md text-[11px] ${selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{index + 1}</span>
+                <button key={option} type="button" onClick={() => { setCustomLabel(""); setChoice(option); }} disabled={busy} aria-pressed={selected} className={`flex min-h-14 items-center gap-3 border-2 px-4 text-left text-sm font-bold capitalize transition duration-200 disabled:opacity-60 ${selected ? "border-foreground bg-secondary shadow-[3px_3px_0_var(--foreground)]" : "border-foreground/35 bg-card hover:-translate-y-0.5 hover:border-foreground"}`}>
+                  <span className={`flex size-6 shrink-0 items-center justify-center rounded-full border border-foreground text-[11px] ${selected ? "bg-primary" : "bg-muted"}`}>{index + 1}</span>
                   {option}
                   {selected && <Check className="ml-auto size-4 text-primary" aria-hidden="true" />}
                 </button>
@@ -123,7 +123,7 @@ export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit:
               disabled={busy}
               placeholder="e.g. building, motorcycle, tree"
               onChange={(event) => { setCustomLabel(event.target.value); setChoice(null); }}
-              className="h-12 w-full rounded-md border bg-white px-4 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-60"
+              className="h-12 w-full border-2 border-foreground bg-background px-4 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:bg-secondary/25 focus:ring-2 focus:ring-primary disabled:opacity-60"
             />
           </form>
         )}
@@ -144,7 +144,7 @@ export function TaskCard({ task, onSubmit, busy }: { task: ServedTask; onSubmit:
         )}
       </div>
 
-      <footer className="flex flex-wrap items-center justify-between gap-4 border-t bg-gray-50 px-5 py-4 sm:px-7">
+      <footer className="flex flex-wrap items-center justify-between gap-4 border-t-2 border-foreground bg-background px-5 py-4 sm:px-7">
         <p className="text-xs text-muted-foreground"><span className="hidden sm:inline">Press 1–{task.options.length} to select · </span>{task.type === "image" ? "Or type a better label · " : ""}Right arrow or Enter to continue</p>
         <Button size="lg" onClick={advance} disabled={!(customLabel.trim() || choice) || busy} className="min-w-40">
           {busy ? "Checking…" : "Submit & next"}<ArrowRight className="size-4" aria-hidden="true" />

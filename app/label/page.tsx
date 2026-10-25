@@ -149,27 +149,28 @@ export default function LabelPage() {
 
   if (!mode) {
     return (
+      <div className="paper-grid min-h-[calc(100svh-72px)] border-b border-foreground/20">
       <div className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:px-14 lg:py-20">
-        <div className="max-w-xl">
-          <p className="text-sm font-medium text-primary">Choose a mode</p>
-          <h1 className="mt-4 text-4xl font-light tracking-[-0.045em] sm:text-5xl">Where is your judgment most useful?</h1>
-          <p className="mt-4 text-base leading-7 text-muted-foreground">Each mode is a focused deck. Pick one now; switch whenever you want.</p>
+        <div className="max-w-4xl">
+          <p className="eyebrow text-primary">Choose your deck</p>
+          <h1 className="mt-5 text-5xl font-black leading-[0.96] tracking-[-0.065em] sm:text-7xl lg:text-8xl">Where does your<br /><span className="display-serif font-normal italic">judgment hit hardest?</span></h1>
+          <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground">Pick a focused deck, move card by card, and switch whenever you want.</p>
         </div>
-        <div className="mt-9 grid gap-3 sm:grid-cols-2">
-          {MODES.map(({ id, name, description, icon: Icon }) => (
-            <button key={id} type="button" onClick={() => chooseMode(id)} className="group flex min-h-32 items-center gap-4 rounded-lg border bg-card p-5 text-left transition duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-lg">
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-md border bg-white text-muted-foreground shadow-sm group-hover:text-primary"><Icon className="size-5" strokeWidth={1.8} aria-hidden="true" /></span>
-              <span className="min-w-0 flex-1"><span className="block text-base font-semibold">{name}</span><span className="mt-1 block text-sm text-muted-foreground">{description}</span></span>
-              <span className="text-lg text-muted-foreground transition group-hover:translate-x-1 group-hover:text-foreground">→</span>
+        <div className="mt-12 grid gap-4 sm:grid-cols-2">
+          {MODES.map(({ id, name, description, icon: Icon }, index) => (
+            <button key={id} type="button" onClick={() => chooseMode(id)} className={`group relative flex min-h-48 items-end gap-4 overflow-hidden border-2 border-foreground p-6 text-left shadow-[6px_6px_0_var(--foreground)] transition duration-200 hover:-translate-y-1 hover:shadow-[9px_9px_0_var(--foreground)] ${index === 0 ? "bg-[#4169e1] text-white" : index === 1 ? "bg-primary" : index === 2 ? "bg-card" : "bg-secondary"}`}>
+              <span className="absolute right-5 top-5 flex size-12 rotate-3 items-center justify-center rounded-full border-2 border-foreground bg-background text-foreground transition group-hover:-rotate-6"><Icon className="size-5" strokeWidth={2} aria-hidden="true" /></span>
+              <span className="min-w-0 flex-1"><span className="eyebrow opacity-60">Deck 0{index + 1}</span><span className="mt-6 block text-2xl font-black">{name}</span><span className="mt-1 block text-sm opacity-70">{description}</span></span>
+              <span className="text-2xl font-black transition group-hover:translate-x-1">→</span>
             </button>
           ))}
         </div>
-        <div className="mt-10 grid grid-cols-3 divide-x border-y bg-card py-5 text-center">
+        <div className="mt-12 grid grid-cols-3 divide-x-2 divide-foreground border-y-2 border-foreground bg-card py-5 text-center">
           <div><p className="text-lg font-semibold tabular-nums">{session.labelsTotal ?? 0}</p><p className="text-xs text-muted-foreground">Lifetime cards</p></div>
           <div><p className="text-lg font-semibold tabular-nums">{Math.round(session.trust ?? 60)}</p><p className="text-xs text-muted-foreground">Trust score</p></div>
           <div><p className="text-lg font-semibold tabular-nums">{sol(session.lamportsEarned ?? "0", 3)}</p><p className="text-xs text-muted-foreground">Total paid</p></div>
         </div>
-      </div>
+      </div></div>
     );
   }
 
@@ -177,10 +178,11 @@ export default function LabelPage() {
   const lastPayout = last?.payoutId ? payoutLinks[last.payoutId] : null;
 
   return (
-    <div className="mx-auto max-w-[1400px] px-5 py-10 sm:px-8 lg:px-14 lg:py-12">
+    <div className="paper-grid min-h-[calc(100svh-72px)] px-5 py-10 sm:px-8 lg:py-12">
+    <div className="mx-auto max-w-[1400px]">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <button type="button" onClick={changeMode} className="flex size-9 items-center justify-center rounded-md border bg-card text-muted-foreground shadow-sm transition hover:bg-gray-50 hover:text-foreground" aria-label="Change mode"><ArrowLeft className="size-4" /></button>
+          <button type="button" onClick={changeMode} className="flex size-9 items-center justify-center rounded-full border-2 border-foreground bg-card text-foreground shadow-[2px_2px_0_var(--foreground)] transition hover:-translate-y-0.5 hover:bg-secondary" aria-label="Change mode"><ArrowLeft className="size-4" /></button>
           <div><p className="text-sm font-semibold">{activeMode.name}</p><p className="text-xs text-muted-foreground">Card {sessionCompleted + 1} · Select an answer, then move right</p></div>
         </div>
         <div className="flex items-center gap-5 text-xs text-muted-foreground">
@@ -206,7 +208,7 @@ export default function LabelPage() {
         </section>
 
         <aside className="space-y-4">
-          <div className="rounded-lg border bg-card p-5">
+          <div className="border-2 border-foreground bg-secondary p-5 shadow-[5px_5px_0_var(--foreground)]">
             <div className="mb-4 flex items-center gap-2"><Activity className="size-4 text-muted-foreground" strokeWidth={1.8} /><h2 className="text-sm font-semibold">This session</h2></div>
             <TrustMeter trust={session.trust ?? 60} multiplier={session.multiplier ?? 1} paused={!!session.paused} />
             <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-5 border-t pt-5">
@@ -218,7 +220,7 @@ export default function LabelPage() {
           </div>
 
           {last ? (
-            <div className={`rounded-lg border p-5 ${last.verdict === "approve" ? "border-indigo-200 bg-indigo-50/50" : "border-red-200 bg-red-50"}`}>
+            <div className={`border-2 border-foreground p-5 shadow-[5px_5px_0_var(--foreground)] ${last.verdict === "approve" ? "bg-card" : "bg-red-50"}`}>
               <div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold">Last card</p><span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${last.verdict === "approve" ? "bg-primary text-primary-foreground" : "bg-red-400/20 text-red-200"}`}>{last.verdict}</span></div>
               <p className="mt-3 text-sm leading-5 text-muted-foreground">{last.reason}</p>
               {last.expected && last.verdict !== "approve" && <p className="mt-2 text-xs text-muted-foreground">Reference answer: <span className="font-medium text-foreground">{last.expected}</span></p>}
@@ -236,12 +238,12 @@ export default function LabelPage() {
               )}
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">Your last result and reward will appear here.</div>
+            <div className="border-2 border-dashed border-foreground/45 bg-background/70 p-5 text-sm text-muted-foreground">Your last result and reward will appear here.</div>
           )}
 
           <button type="button" onClick={changeMode} className="w-full rounded-xl border px-4 py-3 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground">Switch labeling mode</button>
         </aside>
-      </div>
+      </div></div>
     </div>
   );
 }

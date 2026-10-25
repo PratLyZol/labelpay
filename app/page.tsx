@@ -103,66 +103,70 @@ export default function ProjectsPage() {
   );
 
   return (
-    <div className="mx-auto max-w-[1600px] px-5 pb-20 sm:px-8 lg:px-14">
-      <section className="grid min-h-[48svh] gap-14 pb-14 pt-20 lg:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)] lg:items-end lg:pb-16 lg:pt-24">
-        <div className="max-w-[820px] lg:pb-5">
-          <p className="mb-5 text-sm font-medium text-primary">Human intelligence, verified onchain</p>
-          <h1 className="text-balance text-[42px] font-light leading-[1.08] tracking-[-0.055em] text-gray-950 sm:text-[56px] xl:text-[68px]">
-            <span className="font-medium">LabelPay</span> turns careful human judgment into trusted AI data.
-          </h1>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-gray-500 sm:text-lg">Complete high-value evaluation work, build a verifiable quality record, and receive every approved reward in SOL.</p>
+    <div className="overflow-hidden pb-24">
+      <section className="paper-grid relative mx-auto grid min-h-[calc(100svh-72px)] max-w-[1600px] border-x border-foreground/15 lg:grid-cols-[minmax(0,1.2fr)_minmax(390px,0.8fr)]">
+        <div className="relative z-10 flex flex-col justify-between px-5 py-16 sm:px-8 lg:px-14 lg:py-20">
+          <p className="eyebrow flex items-center gap-3"><span className="inline-block h-2 w-2 rounded-full bg-primary ring-2 ring-foreground" />Human judgment, onchain</p>
+          <div className="my-16 max-w-5xl">
+            <h1 className="text-balance text-[58px] font-black leading-[0.88] tracking-[-0.085em] sm:text-[82px] lg:text-[92px] xl:text-[118px]">
+              AI guesses.<br /><span className="display-serif font-normal italic">Humans know.</span>
+            </h1>
+            <p className="mt-8 max-w-xl text-lg leading-7 sm:text-xl">Do the judgment calls machines still miss. Build a trusted work record and get paid in SOL for every approved label.</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button size="lg" nativeButton={false} render={<Link href="/label" />}>Start a task <ArrowUpRight className="size-4" /></Button>
+            <Link href="#projects-heading" className="group inline-flex items-center gap-2 text-sm font-bold underline decoration-2 underline-offset-4">See open projects <ArrowRight className="size-4 transition group-hover:translate-x-1" /></Link>
+          </div>
         </div>
-        <div className="border-t border-gray-100 lg:border-t-0">
-          {[
-            { href: "/label", title: "Start labeling", copy: "Open a focused task deck and begin earning" },
-            { href: "/payments", title: "Review payments", copy: "Follow instant rewards and escrow releases" },
-            { href: "/dashboard", title: "Inspect quality", copy: "See live confidence, trust, and audit signals" },
-          ].map((item, index) => (
-            <Link key={item.href} href={item.href} className={`group block py-5 ${index ? "border-t border-gray-100" : ""}`}>
-              <span className="flex items-center gap-2 text-xl font-normal text-gray-950 sm:text-2xl">{item.title}<ArrowRight className="size-5 -translate-x-1 text-gray-300 transition group-hover:translate-x-0 group-hover:text-gray-500" /></span>
-              <span className="mt-1.5 block text-sm text-gray-500">{item.copy}</span>
-            </Link>
-          ))}
+
+        <div className="relative min-h-[540px] overflow-hidden border-t border-foreground bg-[#4169e1] lg:min-h-0 lg:border-l lg:border-t-0">
+          <div className="absolute inset-8 rounded-full border-2 border-foreground/60 sm:inset-16">
+            <div className="signal-orbit absolute inset-4 rounded-full border border-dashed border-foreground/70">
+              <span className="absolute left-1/2 top-0 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-foreground bg-secondary text-center text-[10px] font-black uppercase leading-3 tracking-wider">Human<br />signal</span>
+            </div>
+          </div>
+          <div className="gentle-float absolute left-[12%] top-[18%] w-48 -rotate-6 border-2 border-foreground bg-card p-4 shadow-[7px_7px_0_#171713] sm:w-56">
+            <p className="eyebrow">Model says</p><p className="mt-6 text-4xl font-black">67%</p><p className="mt-1 text-sm">Looks like a bicycle?</p>
+          </div>
+          <div className="gentle-float absolute bottom-[15%] right-[10%] w-52 rotate-3 border-2 border-foreground bg-primary p-4 shadow-[7px_7px_0_#171713] [animation-delay:-2s] sm:w-60">
+            <p className="eyebrow">Human confirms</p><p className="mt-6 display-serif text-4xl italic">Motorcycle.</p><p className="mt-2 text-sm font-bold">Signal improved ↗</p>
+          </div>
+          <span className="absolute bottom-7 left-7 rounded-full border-2 border-foreground bg-background px-4 py-2 text-xs font-bold">Built for the calls that count</span>
         </div>
       </section>
 
-      <section aria-label="Your activity" className="grid overflow-hidden bg-[#171310] text-white sm:grid-cols-2 xl:grid-cols-4">
-        <div className="border-b p-5 sm:border-r xl:border-b-0">
-          <p className="text-xs text-white/55">Tasks available</p>
-          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{projects === null ? "—" : openTasks}</p>
-          <p className="mt-2 text-xs text-white/45">Across your project queue</p>
+      <div className="overflow-hidden border-y-2 border-foreground bg-secondary py-3">
+        <div className="ticker-track flex w-max whitespace-nowrap text-sm font-black uppercase tracking-[0.16em]">
+          {[0, 1].map((copy) => <div key={copy} className="flex gap-8 pr-8"><span>Image tagging ✦</span><span>Model evaluation ✦</span><span>Human judgment ✦</span><span>Verified payouts ✦</span><span>Better data ✦</span></div>)}
         </div>
-        <div className="border-b p-5 xl:border-b-0 xl:border-r">
-          <p className="text-xs text-white/55">Labels submitted</p>
-          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{session.labelsTotal ?? 0}</p>
-          <p className="mt-2 text-xs text-white/45">Your completed work</p>
-        </div>
-        <div className="border-b p-5 sm:border-b-0 sm:border-r">
-          <p className="text-xs text-white/55">Total paid</p>
-          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{sol(session.lamportsEarned ?? "0", 3)}</p>
-          <p className="mt-2 text-xs text-white/45">{sol(session.escrowLamports ?? "0", 3)} awaiting release</p>
-        </div>
-        <div className="p-5">
-          <p className="text-xs text-white/55">Trust score</p>
-          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{Math.round(session.trust ?? 60)}<span className="ml-1 text-base font-normal text-white/45">/ 100</span></p>
-          <p className="mt-2 text-xs text-white/45">{session.paused ? "Payouts paused" : "Sets your pay multiplier"}</p>
-        </div>
+      </div>
+
+      <section aria-label="Your activity" className="mx-auto grid max-w-[1600px] border-x border-b border-foreground bg-foreground text-background sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          ["Tasks waiting", projects === null ? "—" : openTasks, "Across your queue"],
+          ["Labels shipped", session.labelsTotal ?? 0, "Your completed work"],
+          ["SOL earned", sol(session.lamportsEarned ?? "0", 3), `${sol(session.escrowLamports ?? "0", 3)} in escrow`],
+          ["Trust score", `${Math.round(session.trust ?? 60)}/100`, session.paused ? "Payouts paused" : "Sets your multiplier"],
+        ].map(([label, value, note], index) => <div key={String(label)} className={`p-6 sm:p-8 ${index < 3 ? "border-b border-background/25 xl:border-b-0 xl:border-r" : ""}`}><p className="eyebrow text-background/55">{label}</p><p className="mt-5 text-4xl font-black leading-none tabular-nums sm:text-5xl">{value}</p><p className="mt-3 text-xs text-background/50">{note}</p></div>)}
       </section>
 
-      <section className="mt-20" aria-labelledby="projects-heading">
+      <div className="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-14">
+
+      <section className="mt-24" aria-labelledby="projects-heading">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 id="projects-heading" className="text-3xl font-normal tracking-tight">Open projects</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Choose the work that fits your judgment.</p>
+            <p className="eyebrow text-primary">Pick your signal</p>
+            <h2 id="projects-heading" className="mt-3 text-5xl font-black tracking-[-0.06em] sm:text-7xl">Open <span className="display-serif font-normal italic">projects.</span></h2>
+            <p className="mt-3 text-sm text-muted-foreground">Choose the work that fits your judgment.</p>
           </div>
-          <div className="flex gap-1 rounded-lg border bg-card p-1" aria-label="Project status">
+          <div className="flex gap-1 border-2 border-foreground bg-card p-1" aria-label="Project status">
             {(["available", "completed"] as const).map((status) => (
               <button
                 key={status}
                 type="button"
                 onClick={() => setView(status)}
                 aria-pressed={view === status}
-                className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-colors ${view === status ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`rounded-sm px-4 py-2 text-xs font-bold capitalize transition-colors ${view === status ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {status}
               </button>
@@ -170,7 +174,7 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        <div className="mt-7 overflow-hidden border-y bg-card">
+        <div className="mt-8 overflow-hidden border-2 border-foreground bg-card shadow-[8px_8px_0_var(--foreground)]">
           <div className="hidden grid-cols-[minmax(0,1.8fr)_100px_115px_135px_110px] gap-5 border-b bg-gray-50 px-6 py-3 text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground lg:grid">
             <span>Project</span>
             <span>Available</span>
@@ -192,9 +196,9 @@ export default function ProjectsPage() {
             const remaining = Math.max(0, project.human_tasks - project.done_by_me);
 
             return (
-              <div key={project.id} className="border-b px-5 py-6 last:border-b-0 transition-colors hover:bg-gray-50 lg:grid lg:grid-cols-[minmax(0,1.8fr)_100px_115px_135px_110px] lg:items-center lg:gap-5 lg:px-6">
+              <div key={project.id} className="border-b border-foreground/30 px-5 py-6 last:border-b-0 transition-colors hover:bg-secondary/35 lg:grid lg:grid-cols-[minmax(0,1.8fr)_100px_115px_135px_110px] lg:items-center lg:gap-5 lg:px-6">
                 <div className="flex min-w-0 items-start gap-3.5">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-md border bg-white text-muted-foreground shadow-sm">
+                  <span className="flex size-10 shrink-0 -rotate-2 items-center justify-center rounded-full border-2 border-foreground bg-primary text-foreground">
                     <Icon className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />
                   </span>
                   <div className="min-w-0">
@@ -239,12 +243,12 @@ export default function ProjectsPage() {
         )}
       </section>
 
-      <section className="mt-14 grid gap-8 border-t pt-10 md:grid-cols-[220px_minmax(0,1fr)]" aria-labelledby="faq-heading">
+      <section className="mt-24 grid gap-8 border-t-2 border-foreground pt-10 md:grid-cols-[280px_minmax(0,1fr)]" aria-labelledby="faq-heading">
         <div>
-          <h2 id="faq-heading" className="text-lg font-semibold">Questions</h2>
+          <h2 id="faq-heading" className="text-4xl font-black">Good <span className="display-serif font-normal italic">questions.</span></h2>
           <p className="mt-1 text-sm text-muted-foreground">The basics before you start.</p>
         </div>
-        <div className="divide-y border-t">
+        <div className="divide-y divide-foreground/30 border-t-2 border-foreground">
           {FAQ.map(({ question, answer }, index) => (
             <div key={question}>
               <button
@@ -261,6 +265,7 @@ export default function ProjectsPage() {
           ))}
         </div>
       </section>
+      </div>
     </div>
   );
 }
