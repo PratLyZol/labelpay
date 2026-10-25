@@ -62,7 +62,7 @@ export async function POST(req: Request) {
 
   const treasury = await treasuryAddress();
   if (!treasury) {
-    return NextResponse.json({ error: "Project funding is unavailable until the Testnet treasury is configured." }, { status: 503 });
+    return NextResponse.json({ error: "Project funding is unavailable until the Devnet treasury is configured." }, { status: 503 });
   }
 
   let normalizedItems: string[];

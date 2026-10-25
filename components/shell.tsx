@@ -38,7 +38,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           })}
           </nav>
           <div className="ml-auto flex items-center gap-3">
-            <span className="hidden items-center gap-2 rounded-full border border-foreground/30 bg-card px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider lg:flex"><span className="size-2 rounded-full bg-[#14f195] ring-2 ring-foreground" />Testnet live</span>
+            <span className="hidden items-center gap-2 rounded-full border border-foreground/30 bg-card px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider lg:flex"><span className="size-2 rounded-full bg-[#14f195] ring-2 ring-foreground" />Devnet live</span>
             <WalletButton />
           </div>
         </div>

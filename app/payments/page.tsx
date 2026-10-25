@@ -52,7 +52,7 @@ export default function PaymentsPage() {
           <p className="mt-5 text-5xl font-black tracking-[-0.065em] tabular-nums sm:text-7xl">
             {walletBalance === null ? "—" : sol(walletBalance, 6)}
           </p>
-          <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">This is the live balance currently held by your connected wallet on Solana testnet. It can include SOL received outside LabelPay.</p>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">This is the live balance currently held by your connected wallet on Solana devnet. It can include SOL received outside LabelPay.</p>
           {session.wallet && (
             <a className="mt-5 inline-flex items-center gap-2 font-mono text-xs font-bold underline decoration-2 underline-offset-4" href={solscanAddress(session.wallet)} target="_blank" rel="noreferrer" title={session.wallet}>
               {short(session.wallet)} <ArrowUpRight className="size-3.5" aria-hidden="true" />

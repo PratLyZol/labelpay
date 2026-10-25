@@ -149,7 +149,7 @@ export default function LabelPage() {
       <div className="mx-auto flex min-h-[70vh] max-w-lg flex-col items-center justify-center px-6 text-center">
         <span className="flex size-12 items-center justify-center rounded-xl border bg-card text-muted-foreground"><Wallet className="size-5" strokeWidth={1.8} /></span>
         <h1 className="mt-5 text-2xl font-semibold tracking-tight">Connect your wallet to open a deck</h1>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">Use the wallet button in the top right. One signature connects your work and any approved testnet payouts.</p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">Use the wallet button in the top right. One signature connects your work and any approved devnet payouts.</p>
       </div>
     );
   }
@@ -239,7 +239,7 @@ export default function LabelPage() {
                       Payment {short(lastPayout.signature)} on Solscan <ExternalLink className="size-3" aria-hidden="true" />
                     </a>
                   ) : (
-                    <span className="text-muted-foreground">Confirming payout on Solana testnet…</span>
+                    <span className="text-muted-foreground">Confirming payout on Solana devnet…</span>
                   )}
                 </div>
               )}

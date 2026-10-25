@@ -42,7 +42,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (used) return NextResponse.json({ error: "That deposit has already funded another project." }, { status: 409 });
 
   const treasury = await treasuryAddress();
-  if (!treasury) return NextResponse.json({ error: "The Testnet treasury is not configured." }, { status: 503 });
+  if (!treasury) return NextResponse.json({ error: "The Devnet treasury is not configured." }, { status: 503 });
   const check = await verifyProjectDeposit(parsed.data.signature, {
     owner: wallet,
     treasury,

@@ -175,7 +175,7 @@ export default function NewProjectPage() {
         <div className="w-full max-w-xl border-2 border-foreground bg-card p-8 shadow-[8px_8px_0_var(--foreground)] sm:p-10">
           <p className="eyebrow text-primary">Fund before publishing</p>
           <h1 className="mt-3 text-4xl font-black sm:text-5xl">Deposit the project budget.</h1>
-          <p className="mt-4 text-sm leading-6 text-muted-foreground">Your project is a private draft until the Testnet transfer is confirmed. The deposit covers the maximum 1.5× trust multiplier across all {created.itemCount} items.</p>
+          <p className="mt-4 text-sm leading-6 text-muted-foreground">Your project is a private draft until the Devnet transfer is confirmed. The deposit covers the maximum 1.5× trust multiplier across all {created.itemCount} items.</p>
           <div className="mt-7 border-2 border-foreground bg-secondary p-5">
             <p className="text-xs font-bold uppercase tracking-wider">Required deposit</p>
             <p className="mt-2 text-3xl font-black tabular-nums">{(Number(created.fundingLamports) / 1e9).toFixed(6)} SOL</p>
@@ -187,7 +187,7 @@ export default function NewProjectPage() {
           {error && <p role="alert" className="mt-4 border-2 border-red-700 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
           <div className="mt-7 flex flex-wrap gap-3">
             {!depositSignature && <Button size="lg" onClick={() => void fundProject()} disabled={fundingBusy}>{fundingBusy ? "Waiting for wallet…" : "Deposit & publish"}<Wallet className="size-4" /></Button>}
-            {depositSignature && <Button size="lg" onClick={() => void verifyFunding(depositSignature)} disabled={fundingBusy}>{fundingBusy ? "Checking Testnet…" : "Retry verification"}<ArrowRight className="size-4" /></Button>}
+            {depositSignature && <Button size="lg" onClick={() => void verifyFunding(depositSignature)} disabled={fundingBusy}>{fundingBusy ? "Checking Devnet…" : "Retry verification"}<ArrowRight className="size-4" /></Button>}
           </div>
         </div>
       </div>
@@ -222,7 +222,7 @@ export default function NewProjectPage() {
             <p className="mt-6 max-w-md text-base leading-7 text-muted-foreground">Turn your own text or image URLs into a paid labeling deck. Workers see it in the marketplace immediately.</p>
             <div className="mt-8 border-2 border-foreground bg-secondary p-5 text-sm leading-6 shadow-[4px_4px_0_var(--foreground)]">
               <p className="font-black">Demo funding</p>
-              <p className="mt-1 text-muted-foreground">You deposit the maximum worker budget into the Taskmaster Testnet treasury before publishing. Demo accounts are limited to 3 projects, 100 items, and 0.001 SOL base pay per label. You cannot earn from your own project.</p>
+              <p className="mt-1 text-muted-foreground">You deposit the maximum worker budget into the Taskmaster Devnet treasury before publishing. Demo accounts are limited to 3 projects, 100 items, and 0.001 SOL base pay per label. You cannot earn from your own project.</p>
             </div>
           </div>
 
@@ -266,7 +266,7 @@ export default function NewProjectPage() {
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-4 border-t-2 border-foreground bg-background px-5 py-4 sm:px-7">
-              <p className="text-xs text-muted-foreground">The project publishes after its exact Testnet deposit is verified.</p>
+              <p className="text-xs text-muted-foreground">The project publishes after its exact Devnet deposit is verified.</p>
               <Button type="submit" size="lg" disabled={busy || items.length === 0 || labels.length < 2}>{busy ? "Creating draft…" : "Continue to deposit"}<ArrowRight className="size-4" /></Button>
             </div>
           </form>

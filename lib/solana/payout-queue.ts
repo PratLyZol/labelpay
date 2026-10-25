@@ -22,7 +22,7 @@ declare global {
 
 /**
  * In-process payout queue. Jobs for the same worker and kind that are waiting at the same time are
- * coalesced into one transaction, which keeps up under load and under testnet RPC rate limits.
+ * coalesced into one transaction, which keeps up under load and under devnet RPC rate limits.
  */
 class PayoutQueue {
   private jobs: Job[] = [];
