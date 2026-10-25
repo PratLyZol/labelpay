@@ -73,10 +73,10 @@ export function WalletButton() {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-sm hover:bg-muted"
+          className="flex items-center gap-2 rounded-md border bg-white py-1 pl-1 pr-3 text-sm shadow-sm hover:bg-muted"
           title={address}
         >
-          <span className="flex size-7 items-center justify-center rounded-full bg-[linear-gradient(135deg,#9945ff,#14f195)] text-xs font-bold text-white">{address.slice(0, 1).toUpperCase()}</span>
+          <span className="flex size-7 items-center justify-center rounded bg-primary text-xs font-semibold text-white">{address.slice(0, 1).toUpperCase()}</span>
           <span className="font-mono text-xs">{truncate(address)}</span>
           <span className={`size-2 rounded-full ${signedIn ? "bg-sol" : "bg-amber-400"}`} />
         </button>

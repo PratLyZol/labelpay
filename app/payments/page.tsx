@@ -41,7 +41,7 @@ export default function PaymentsPage() {
     return <p className="px-8 py-16 text-center text-muted-foreground">Connect a wallet to see payments.</p>;
 
   return (
-    <div className="px-6 py-8 lg:px-8">
+    <div className="mx-auto max-w-[1600px] px-5 py-12 sm:px-8 lg:px-14 lg:py-16">
       <div className="grid max-w-3xl grid-cols-2 gap-x-6 gap-y-7 md:grid-cols-4">
         <StatTile label="Total paid" value={sol(session.lamportsEarned ?? "0", 3)} hint="Instant payouts plus released escrow" />
         <StatTile label="Awaiting payout" value={sol(session.escrowLamports ?? "0", 3)} hint="Vesting in escrow" />
@@ -54,8 +54,8 @@ export default function PaymentsPage() {
         </p>
       )}
 
-      <h2 className="font-pixel mb-3 mt-10 text-[28px]">Transactions</h2>
-      <div className="overflow-hidden rounded-2xl border">
+      <h2 className="mb-4 mt-12 text-3xl font-light tracking-[-0.04em]">Transactions</h2>
+      <div className="overflow-hidden rounded-lg border">
         <table className="w-full text-[15px]">
           <thead className="bg-muted/60 text-left text-sm text-muted-foreground">
             <tr>

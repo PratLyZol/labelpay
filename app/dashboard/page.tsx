@@ -101,10 +101,10 @@ export default function DashboardPage() {
   const t = stats.totals;
 
   return (
-    <div className="space-y-6 px-6 py-8 lg:px-8">
+    <div className="mx-auto max-w-[1600px] space-y-8 px-5 py-12 sm:px-8 lg:px-14 lg:py-16">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-pixel text-[28px] md:text-[34px]">Live quality + payouts</h2>
+          <h2 className="text-3xl font-light tracking-[-0.04em] md:text-4xl">Live quality + payouts</h2>
           <p className="text-sm text-muted-foreground">
             Per-minute continuous aggregates from Tiger Data · monitor model <span className="font-mono">{stats.judge.model}</span>
             {stats.treasury.address && (

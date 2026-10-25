@@ -5,50 +5,28 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #12101c;
+  --foreground: #171717;
   --card: #ffffff;
-  --card-foreground: #12101c;
+  --card-foreground: #171717;
   --popover: #ffffff;
   --popover-foreground: #12101c;
-  --primary: #7b2ff2;            /* Solana purple, deepened for contrast */
+  --primary: #4f46e5;
   --primary-foreground: #ffffff;
-  --secondary: #f3f0fb;
-  --secondary-foreground: #2a1f4d;
-  --muted: #f4f2fa;
-  --muted-foreground: #65617a;
-  --accent: #e6fcf2;              /* Solana green tint */
-  --accent-foreground: #0b5a3c;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #262626;
+  --muted: #f7f7f8;
+  --muted-foreground: #737373;
+  --accent: #eef2ff;
+  --accent-foreground: #3730a3;
   --destructive: #d93025;
-  --border: #e7e4f1;
-  --input: #e7e4f1;
-  --ring: #9945ff;
-  --radius: 1rem;
+  --border: #e5e7eb;
+  --input: #d1d5db;
+  --ring: #4f46e5;
+  --radius: 0.5rem;
   --sol: #14f195;
   --sol-2: #9945ff;
-  --brand: #14f195;
-  --sidebar: #faf9fe;
-}
-
-.dark {
-  --background: #0c1013;
-  --foreground: #e9eeeb;
-  --card: #12181b;
-  --card-foreground: #e9eeeb;
-  --popover: #171e21;
-  --popover-foreground: #e9eeeb;
-  --primary: #c8f48a;
-  --primary-foreground: #101810;
-  --secondary: #1b2426;
-  --secondary-foreground: #e9eeeb;
-  --muted: #192124;
-  --muted-foreground: #93a09b;
-  --accent: #203227;
-  --accent-foreground: #d5f5b0;
-  --destructive: #ef5350;
-  --border: #273136;
-  --input: #324045;
-  --ring: #c8f48a;
-  --sidebar: #0e1316;
+  --brand: #4f46e5;
+  --sidebar: #ffffff;
 }
 
 @theme inline {
@@ -80,20 +58,13 @@
   --radius-xl: calc(var(--radius) + 4px);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-pixel: var(--font-pixel), var(--font-geist-mono), ui-monospace, monospace;
 }
 
 @layer base {
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background text-foreground; font-family: var(--font-sans); }
-  h1, h2, h3 { letter-spacing: -0.02em; }
-}
-
-@utility font-pixel {
-  font-family: var(--font-pixel);
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  font-weight: 400;
+  h1, h2, h3 { letter-spacing: -0.035em; }
+  ::selection { background: #c7d2fe; color: #1e1b4b; }
 }
 
 @utility eyebrow {

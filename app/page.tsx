@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, ChevronDown, FileText, Image, ListOrdered, Wallet } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown, FileText, Image, ListOrdered, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/components/use-session";
 import { sol } from "@/components/format";
@@ -71,7 +71,7 @@ function Progress({ done, total }: { done: number; total: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-[#293336]">
+      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-100">
         <div className="h-full rounded-full bg-primary" style={{ width: `${percent}%` }} />
       </div>
       <span className="text-xs tabular-nums text-muted-foreground">{done}/{total}</span>
@@ -103,47 +103,57 @@ export default function ProjectsPage() {
   );
 
   return (
-    <div className="mx-auto max-w-[1240px] px-5 pb-16 pt-9 sm:px-8 lg:px-12 lg:pt-12">
-      <div className="flex flex-wrap items-start justify-between gap-5">
-        <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-primary">Labeling workspace</p>
-          <h1 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Find your next task.</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Pick a project, work through the queue, and track what you earn.</p>
+    <div className="mx-auto max-w-[1600px] px-5 pb-20 sm:px-8 lg:px-14">
+      <section className="grid min-h-[48svh] gap-14 pb-14 pt-20 lg:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)] lg:items-end lg:pb-16 lg:pt-24">
+        <div className="max-w-[820px] lg:pb-5">
+          <p className="mb-5 text-sm font-medium text-primary">Human intelligence, verified onchain</p>
+          <h1 className="text-balance text-[42px] font-light leading-[1.08] tracking-[-0.055em] text-gray-950 sm:text-[56px] xl:text-[68px]">
+            <span className="font-medium">LabelPay</span> turns careful human judgment into trusted AI data.
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-gray-500 sm:text-lg">Complete high-value evaluation work, build a verifiable quality record, and receive every approved reward in SOL.</p>
         </div>
-        <div className="flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs text-muted-foreground">
-          <span className="size-1.5 rounded-full bg-primary" />
-          Solana devnet
-        </div>
-      </div>
-
-      <section aria-label="Your activity" className="mt-9 grid overflow-hidden rounded-xl border bg-card sm:grid-cols-2 xl:grid-cols-4">
-        <div className="border-b p-5 sm:border-r xl:border-b-0">
-          <p className="text-xs text-muted-foreground">Tasks available</p>
-          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{projects === null ? "—" : openTasks}</p>
-          <p className="mt-2 text-xs text-muted-foreground">Across your project queue</p>
-        </div>
-        <div className="border-b p-5 xl:border-b-0 xl:border-r">
-          <p className="text-xs text-muted-foreground">Labels submitted</p>
-          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{session.labelsTotal ?? 0}</p>
-          <p className="mt-2 text-xs text-muted-foreground">Your completed work</p>
-        </div>
-        <div className="border-b p-5 sm:border-b-0 sm:border-r">
-          <p className="text-xs text-muted-foreground">Total paid</p>
-          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{sol(session.lamportsEarned ?? "0", 3)}</p>
-          <p className="mt-2 text-xs text-muted-foreground">{sol(session.escrowLamports ?? "0", 3)} awaiting release</p>
-        </div>
-        <div className="p-5">
-          <p className="text-xs text-muted-foreground">Trust score</p>
-          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{Math.round(session.trust ?? 60)}<span className="ml-1 text-base font-normal text-muted-foreground">/ 100</span></p>
-          <p className="mt-2 text-xs text-muted-foreground">{session.paused ? "Payouts paused" : "Sets your pay multiplier"}</p>
+        <div className="border-t border-gray-100 lg:border-t-0">
+          {[
+            { href: "/label", title: "Start labeling", copy: "Open a focused task deck and begin earning" },
+            { href: "/payments", title: "Review payments", copy: "Follow instant rewards and escrow releases" },
+            { href: "/dashboard", title: "Inspect quality", copy: "See live confidence, trust, and audit signals" },
+          ].map((item, index) => (
+            <Link key={item.href} href={item.href} className={`group block py-5 ${index ? "border-t border-gray-100" : ""}`}>
+              <span className="flex items-center gap-2 text-xl font-normal text-gray-950 sm:text-2xl">{item.title}<ArrowRight className="size-5 -translate-x-1 text-gray-300 transition group-hover:translate-x-0 group-hover:text-gray-500" /></span>
+              <span className="mt-1.5 block text-sm text-gray-500">{item.copy}</span>
+            </Link>
+          ))}
         </div>
       </section>
 
-      <section className="mt-12" aria-labelledby="projects-heading">
+      <section aria-label="Your activity" className="grid overflow-hidden bg-[#171310] text-white sm:grid-cols-2 xl:grid-cols-4">
+        <div className="border-b p-5 sm:border-r xl:border-b-0">
+          <p className="text-xs text-white/55">Tasks available</p>
+          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{projects === null ? "—" : openTasks}</p>
+          <p className="mt-2 text-xs text-white/45">Across your project queue</p>
+        </div>
+        <div className="border-b p-5 xl:border-b-0 xl:border-r">
+          <p className="text-xs text-white/55">Labels submitted</p>
+          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{session.labelsTotal ?? 0}</p>
+          <p className="mt-2 text-xs text-white/45">Your completed work</p>
+        </div>
+        <div className="border-b p-5 sm:border-b-0 sm:border-r">
+          <p className="text-xs text-white/55">Total paid</p>
+          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{sol(session.lamportsEarned ?? "0", 3)}</p>
+          <p className="mt-2 text-xs text-white/45">{sol(session.escrowLamports ?? "0", 3)} awaiting release</p>
+        </div>
+        <div className="p-5">
+          <p className="text-xs text-white/55">Trust score</p>
+          <p className="mt-2 text-[28px] font-semibold leading-none tabular-nums">{Math.round(session.trust ?? 60)}<span className="ml-1 text-base font-normal text-white/45">/ 100</span></p>
+          <p className="mt-2 text-xs text-white/45">{session.paused ? "Payouts paused" : "Sets your pay multiplier"}</p>
+        </div>
+      </section>
+
+      <section className="mt-20" aria-labelledby="projects-heading">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 id="projects-heading" className="text-xl font-semibold tracking-tight">Projects</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Choose the work you want to do.</p>
+            <h2 id="projects-heading" className="text-3xl font-normal tracking-tight">Open projects</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Choose the work that fits your judgment.</p>
           </div>
           <div className="flex gap-1 rounded-lg border bg-card p-1" aria-label="Project status">
             {(["available", "completed"] as const).map((status) => (
@@ -160,8 +170,8 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        <div className="mt-5 overflow-hidden rounded-xl border bg-card">
-          <div className="hidden grid-cols-[minmax(0,1.8fr)_100px_115px_135px_110px] gap-5 border-b bg-[#151c1f] px-6 py-3 text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground lg:grid">
+        <div className="mt-7 overflow-hidden border-y bg-card">
+          <div className="hidden grid-cols-[minmax(0,1.8fr)_100px_115px_135px_110px] gap-5 border-b bg-gray-50 px-6 py-3 text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground lg:grid">
             <span>Project</span>
             <span>Available</span>
             <span>Pay / label</span>
@@ -182,9 +192,9 @@ export default function ProjectsPage() {
             const remaining = Math.max(0, project.human_tasks - project.done_by_me);
 
             return (
-              <div key={project.id} className="border-b px-5 py-5 last:border-b-0 transition-colors hover:bg-[#182124] lg:grid lg:grid-cols-[minmax(0,1.8fr)_100px_115px_135px_110px] lg:items-center lg:gap-5 lg:px-6">
+              <div key={project.id} className="border-b px-5 py-6 last:border-b-0 transition-colors hover:bg-gray-50 lg:grid lg:grid-cols-[minmax(0,1.8fr)_100px_115px_135px_110px] lg:items-center lg:gap-5 lg:px-6">
                 <div className="flex min-w-0 items-start gap-3.5">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border bg-background text-muted-foreground">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-md border bg-white text-muted-foreground shadow-sm">
                     <Icon className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />
                   </span>
                   <div className="min-w-0">

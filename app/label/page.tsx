@@ -149,22 +149,22 @@ export default function LabelPage() {
 
   if (!mode) {
     return (
-      <div className="mx-auto max-w-5xl px-5 py-12 sm:px-8 lg:py-16">
+      <div className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:px-14 lg:py-20">
         <div className="max-w-xl">
-          <p className="text-xs font-medium uppercase tracking-[0.14em] text-primary">Choose a mode</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">What do you want to label?</h1>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">Each mode is a focused deck. Pick one now; you can switch whenever you want.</p>
+          <p className="text-sm font-medium text-primary">Choose a mode</p>
+          <h1 className="mt-4 text-4xl font-light tracking-[-0.045em] sm:text-5xl">Where is your judgment most useful?</h1>
+          <p className="mt-4 text-base leading-7 text-muted-foreground">Each mode is a focused deck. Pick one now; switch whenever you want.</p>
         </div>
         <div className="mt-9 grid gap-3 sm:grid-cols-2">
           {MODES.map(({ id, name, description, icon: Icon }) => (
-            <button key={id} type="button" onClick={() => chooseMode(id)} className="group flex min-h-32 items-center gap-4 rounded-2xl border bg-card p-5 text-left transition duration-200 hover:-translate-y-0.5 hover:border-input hover:bg-muted/35 hover:shadow-xl">
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-lg border bg-background text-muted-foreground group-hover:text-foreground"><Icon className="size-5" strokeWidth={1.8} aria-hidden="true" /></span>
+            <button key={id} type="button" onClick={() => chooseMode(id)} className="group flex min-h-32 items-center gap-4 rounded-lg border bg-card p-5 text-left transition duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-lg">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-md border bg-white text-muted-foreground shadow-sm group-hover:text-primary"><Icon className="size-5" strokeWidth={1.8} aria-hidden="true" /></span>
               <span className="min-w-0 flex-1"><span className="block text-base font-semibold">{name}</span><span className="mt-1 block text-sm text-muted-foreground">{description}</span></span>
               <span className="text-lg text-muted-foreground transition group-hover:translate-x-1 group-hover:text-foreground">→</span>
             </button>
           ))}
         </div>
-        <div className="mt-10 grid grid-cols-3 divide-x rounded-xl border bg-card py-4 text-center">
+        <div className="mt-10 grid grid-cols-3 divide-x border-y bg-card py-5 text-center">
           <div><p className="text-lg font-semibold tabular-nums">{session.labelsTotal ?? 0}</p><p className="text-xs text-muted-foreground">Lifetime cards</p></div>
           <div><p className="text-lg font-semibold tabular-nums">{Math.round(session.trust ?? 60)}</p><p className="text-xs text-muted-foreground">Trust score</p></div>
           <div><p className="text-lg font-semibold tabular-nums">{sol(session.lamportsEarned ?? "0", 3)}</p><p className="text-xs text-muted-foreground">Total paid</p></div>
@@ -177,10 +177,10 @@ export default function LabelPage() {
   const lastPayout = last?.payoutId ? payoutLinks[last.payoutId] : null;
 
   return (
-    <div className="mx-auto max-w-[1320px] px-5 py-7 sm:px-8 lg:px-10 lg:py-9">
+    <div className="mx-auto max-w-[1400px] px-5 py-10 sm:px-8 lg:px-14 lg:py-12">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <button type="button" onClick={changeMode} className="flex size-9 items-center justify-center rounded-lg border bg-card text-muted-foreground transition hover:text-foreground" aria-label="Change mode"><ArrowLeft className="size-4" /></button>
+          <button type="button" onClick={changeMode} className="flex size-9 items-center justify-center rounded-md border bg-card text-muted-foreground shadow-sm transition hover:bg-gray-50 hover:text-foreground" aria-label="Change mode"><ArrowLeft className="size-4" /></button>
           <div><p className="text-sm font-semibold">{activeMode.name}</p><p className="text-xs text-muted-foreground">Card {sessionCompleted + 1} · Select an answer, then move right</p></div>
         </div>
         <div className="flex items-center gap-5 text-xs text-muted-foreground">
@@ -189,11 +189,11 @@ export default function LabelPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_280px]">
         <section className="min-w-0">
           {session.paused && <div className="mb-4 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">Payouts are paused while your trust score recovers. Careful labels will raise it.</div>}
           {done && (
-            <div className="flex min-h-[520px] flex-col items-center justify-center rounded-[24px] border bg-card px-6 text-center">
+            <div className="flex min-h-[520px] flex-col items-center justify-center rounded-lg border bg-card px-6 text-center">
               <span className="flex size-12 items-center justify-center rounded-xl border bg-card text-primary"><Check className="size-5" strokeWidth={1.8} /></span>
               <h2 className="mt-5 text-2xl font-semibold">Deck complete</h2>
               <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">You labeled every available card in {activeMode.name.toLowerCase()}.</p>
@@ -201,12 +201,12 @@ export default function LabelPage() {
             </div>
           )}
           {task && <TaskCard key={task.id} task={task} onSubmit={submit} busy={busy} />}
-          {!task && !done && <div className="flex min-h-[520px] items-center justify-center rounded-[24px] border bg-card text-sm text-muted-foreground">Preparing the next card…</div>}
+          {!task && !done && <div className="flex min-h-[520px] items-center justify-center rounded-lg border bg-card text-sm text-muted-foreground">Preparing the next card…</div>}
           {error && <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"><span>{error}</span><Button size="sm" variant="outline" onClick={() => void loadNext()}>Try again</Button></div>}
         </section>
 
         <aside className="space-y-4">
-          <div className="rounded-2xl border bg-card p-5">
+          <div className="rounded-lg border bg-card p-5">
             <div className="mb-4 flex items-center gap-2"><Activity className="size-4 text-muted-foreground" strokeWidth={1.8} /><h2 className="text-sm font-semibold">This session</h2></div>
             <TrustMeter trust={session.trust ?? 60} multiplier={session.multiplier ?? 1} paused={!!session.paused} />
             <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-5 border-t pt-5">
@@ -218,7 +218,7 @@ export default function LabelPage() {
           </div>
 
           {last ? (
-            <div className={`rounded-2xl border p-5 ${last.verdict === "approve" ? "border-primary/30 bg-accent/30" : "border-red-400/30 bg-red-500/10"}`}>
+            <div className={`rounded-lg border p-5 ${last.verdict === "approve" ? "border-indigo-200 bg-indigo-50/50" : "border-red-200 bg-red-50"}`}>
               <div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold">Last card</p><span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${last.verdict === "approve" ? "bg-primary text-primary-foreground" : "bg-red-400/20 text-red-200"}`}>{last.verdict}</span></div>
               <p className="mt-3 text-sm leading-5 text-muted-foreground">{last.reason}</p>
               {last.expected && last.verdict !== "approve" && <p className="mt-2 text-xs text-muted-foreground">Reference answer: <span className="font-medium text-foreground">{last.expected}</span></p>}
@@ -236,7 +236,7 @@ export default function LabelPage() {
               )}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed p-5 text-sm text-muted-foreground">Your last result and reward will appear here.</div>
+            <div className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">Your last result and reward will appear here.</div>
           )}
 
           <button type="button" onClick={changeMode} className="w-full rounded-xl border px-4 py-3 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground">Switch labeling mode</button>
