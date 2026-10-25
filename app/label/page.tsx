@@ -8,7 +8,7 @@ import { TrustMeter } from "@/components/trust-meter";
 import { useLiveFeed } from "@/components/live-feed";
 import { useSession } from "@/components/use-session";
 import { Button } from "@/components/ui/button";
-import { sol } from "@/components/format";
+import { short, sol } from "@/components/format";
 
 type Mode = "all" | "text" | "pairwise" | "image";
 
@@ -229,7 +229,7 @@ export default function LabelPage() {
                 <div className="mt-3 border-t pt-3 text-xs">
                   {lastPayout ? (
                     <a href={lastPayout.url} target="_blank" rel="noreferrer" title={lastPayout.signature} className="inline-flex items-center gap-1.5 font-medium text-primary underline underline-offset-4">
-                      View transaction on Solscan <ExternalLink className="size-3" aria-hidden="true" />
+                      Payment {short(lastPayout.signature)} on Solscan <ExternalLink className="size-3" aria-hidden="true" />
                     </a>
                   ) : (
                     <span className="text-muted-foreground">Confirming payout on Solana devnet…</span>

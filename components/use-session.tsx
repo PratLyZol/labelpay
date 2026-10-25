@@ -14,6 +14,7 @@ export interface Me {
   escrowLamports?: string;
   lamportsReleased?: string;
   lamportsSlashed?: string;
+  walletBalanceLamports?: string | null;
   escrowAddress?: string | null;
 }
 

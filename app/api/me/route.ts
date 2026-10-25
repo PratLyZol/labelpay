@@ -3,6 +3,7 @@ import { sql } from "@/lib/db/client";
 import { requireWallet } from "@/lib/auth/session";
 import { trustMultiplier, TRUST_PAUSE } from "@/lib/judge/monitor";
 import type { Worker } from "@/lib/db/types";
+import { balanceOf } from "@/lib/solana/treasury";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,7 @@ export async function GET() {
     FROM label_events WHERE worker = ${wallet} ORDER BY ts DESC LIMIT 25`;
   const payouts = await sql`
     SELECT id::text, ts, lamports::text AS lamports, tx_sig, status, kind, release_at, released, escrow_address FROM payouts WHERE worker = ${wallet} ORDER BY ts DESC LIMIT 25`;
+  const walletBalanceLamports = await balanceOf(wallet).catch(() => null);
   return NextResponse.json({
     wallet,
     trust: w.trust_score,
@@ -27,6 +29,7 @@ export async function GET() {
     escrowLamports: w.escrow_lamports.toString(),
     lamportsReleased: w.lamports_released.toString(),
     lamportsSlashed: w.lamports_slashed.toString(),
+    walletBalanceLamports: walletBalanceLamports?.toString() ?? null,
     escrowAddress: w.escrow_address,
     recent,
     payouts,
