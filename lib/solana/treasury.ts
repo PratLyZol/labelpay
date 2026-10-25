@@ -22,6 +22,7 @@ import {
 import { getTransferSolInstruction, getTransferSolWithSeedInstruction, SYSTEM_PROGRAM_ADDRESS } from "@solana-program/system";
 import bs58 from "bs58";
 import { env, PAYOUT_MOCK } from "@/lib/env";
+import { solscanAddress, solscanTx } from "./solscan";
 
 const rpc = createSolanaRpc(env.SOLANA_RPC_URL);
 const rpcSubscriptions = createSolanaRpcSubscriptions(env.SOLANA_RPC_URL.replace(/^http/, "ws"));
@@ -66,10 +67,10 @@ export async function treasuryBalanceLamports(): Promise<bigint | null> {
 }
 
 export function explorerTx(sig: string) {
-  return `https://explorer.solana.com/tx/${sig}?cluster=devnet`;
+  return solscanTx(sig);
 }
 export function explorerAddress(addr: string) {
-  return `https://explorer.solana.com/address/${addr}?cluster=devnet`;
+  return solscanAddress(addr);
 }
 
 /* ------------------------------------------------------------------ */

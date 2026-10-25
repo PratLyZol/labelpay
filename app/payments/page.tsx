@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { StatTile } from "@/components/stat";
 import { useSession } from "@/components/use-session";
 import { sol } from "@/components/format";
+import { ExternalLink } from "lucide-react";
+import { solscanAddress, solscanTx } from "@/lib/solana/solscan";
 
 interface PayoutRow {
   id: string;
@@ -48,7 +50,7 @@ export default function PaymentsPage() {
       </div>
       {session.escrowAddress && !session.escrowAddress.startsWith("mock") && (
         <p className="mt-4 text-sm text-muted-foreground">
-          Your escrow account: <a className="font-mono underline" href={`https://explorer.solana.com/address/${session.escrowAddress}?cluster=devnet`} target="_blank" rel="noreferrer">{session.escrowAddress}</a>
+          Your escrow account: <a className="font-mono underline" href={solscanAddress(session.escrowAddress)} target="_blank" rel="noreferrer">{session.escrowAddress}</a>
         </p>
       )}
 
@@ -81,7 +83,9 @@ export default function PaymentsPage() {
                   <td className="px-4 py-3 text-right font-mono tabular-nums">{r.kind === "escrow_slash" ? "−" : "+"}{sol(r.lamports)}</td>
                   <td className="px-4 py-3 text-right font-mono text-xs">
                     {r.tx_sig && !r.tx_sig.startsWith("mock") ? (
-                      <a className="underline" href={`https://explorer.solana.com/tx/${r.tx_sig}?cluster=devnet`} target="_blank" rel="noreferrer">{r.tx_sig.slice(0, 10)}… ↗</a>
+                      <a className="inline-flex items-center justify-end gap-1.5 underline" href={solscanTx(r.tx_sig)} target="_blank" rel="noreferrer" title={r.tx_sig}>
+                        View on Solscan <ExternalLink className="size-3" aria-hidden="true" />
+                      </a>
                     ) : (
                       <span className="text-muted-foreground">{r.tx_sig ? "mock" : "pending"}</span>
                     )}

@@ -140,7 +140,7 @@ export function FeedList({ items, showWorker = false, empty = "Waiting for label
                 <span className="text-xs text-muted-foreground">mock tx (no treasury key)</span>
               ) : (
                 <a href={it.explorer} target="_blank" rel="noreferrer" className="ml-auto font-mono text-xs underline">
-                  {it.sig?.slice(0, 8)}… Explorer ↗
+                  {it.sig?.slice(0, 8)}… Solscan ↗
                 </a>
               )}
             </div>
@@ -165,8 +165,8 @@ export function FeedList({ items, showWorker = false, empty = "Waiting for label
                 <span className="ml-auto text-xs text-muted-foreground">mock tx</span>
               ) : (
                 <span className="ml-auto flex gap-2 font-mono text-xs">
-                  {it.escrowExplorer && <a href={it.escrowExplorer} target="_blank" rel="noreferrer" className="underline">escrow ↗</a>}
-                  <a href={it.explorer} target="_blank" rel="noreferrer" className="underline">tx ↗</a>
+                  {it.escrowExplorer && <a href={it.escrowExplorer} target="_blank" rel="noreferrer" className="underline">escrow on Solscan ↗</a>}
+                  <a href={it.explorer} target="_blank" rel="noreferrer" className="underline">transaction on Solscan ↗</a>
                 </span>
               )}
             </div>

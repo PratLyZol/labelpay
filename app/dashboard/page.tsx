@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bars, LineChart, SERIES, STATUS, Stat, type Series } from "@/components/charts";
 import { FeedList, useLiveFeed, VerdictBadge } from "@/components/live-feed";
 import { pct, short, sol } from "@/components/format";
+import { solscanAddress, solscanTx } from "@/lib/solana/solscan";
 
 interface Stats {
   totals: { labels: number; approved: number; rejected: number; lamports: string; avg_latency_ms: number; avg_judge_ms: number; workers: number };
@@ -108,7 +109,7 @@ export default function DashboardPage() {
             Per-minute continuous aggregates from Tiger Data · monitor model <span className="font-mono">{stats.judge.model}</span>
             {stats.treasury.address && (
               <>
-                {" "}· treasury <a className="font-mono underline" href={`https://explorer.solana.com/address/${stats.treasury.address}?cluster=devnet`} target="_blank" rel="noreferrer">{short(stats.treasury.address)}</a>
+                {" "}· treasury <a className="font-mono underline" href={solscanAddress(stats.treasury.address)} target="_blank" rel="noreferrer">{short(stats.treasury.address)}</a>
                 {stats.treasury.lamports && <> ({sol(stats.treasury.lamports, 2)})</>}
               </>
             )}
@@ -227,7 +228,7 @@ export default function DashboardPage() {
                   <span className="ml-auto font-mono text-xs">
                     {r.pay_lamports !== "0" ? `+${sol(r.pay_lamports)}` : "–"}
                     {r.tx_sig && !r.tx_sig.startsWith("mock") && (
-                      <a className="ml-2 underline" href={`https://explorer.solana.com/tx/${r.tx_sig}?cluster=devnet`} target="_blank" rel="noreferrer">tx ↗</a>
+                      <a className="ml-2 underline" href={solscanTx(r.tx_sig)} target="_blank" rel="noreferrer">Solscan ↗</a>
                     )}
                   </span>
                 </li>

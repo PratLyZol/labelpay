@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Activity, ArrowLeft, Check, FileText, Image, Layers3, ListOrdered, Wallet } from "lucide-react";
+import { Activity, ArrowLeft, Check, ExternalLink, FileText, Image, Layers3, ListOrdered, Wallet } from "lucide-react";
 import type { ServedTask } from "@/lib/db/types";
 import { TaskCard } from "@/components/task-card";
 import { TrustMeter } from "@/components/trust-meter";
@@ -24,6 +24,7 @@ interface LastResult {
   expected: string | null;
   latencyMs: number;
   paused: boolean;
+  payoutId: string | null;
 }
 
 const MODES = [
@@ -44,6 +45,7 @@ export default function LabelPage() {
   const [sessionEarned, setSessionEarned] = useState(0n);
   const [sessionCompleted, setSessionCompleted] = useState(0);
   const [confirmed, setConfirmed] = useState(0n);
+  const [payoutLinks, setPayoutLinks] = useState<Record<string, { signature: string; url: string }>>({});
   const taskRef = useRef(task);
 
   useEffect(() => {
@@ -57,6 +59,13 @@ export default function LabelPage() {
 
   useLiveFeed("me", (event) => {
     if (event.type === "payout_confirmed" || event.type === "escrow_released") setConfirmed((value) => value + BigInt(event.lamports as string));
+    if (event.type === "payout_confirmed" && Array.isArray(event.payoutIds) && typeof event.sig === "string" && typeof event.explorer === "string") {
+      setPayoutLinks((current) => {
+        const next = { ...current };
+        for (const id of event.payoutIds as string[]) next[id] = { signature: event.sig as string, url: event.explorer as string };
+        return next;
+      });
+    }
     if (event.type === "escrow_funded" || event.type === "escrow_released" || event.type === "escrow_slashed" || event.type === "audit") void refresh();
   });
 
@@ -165,6 +174,7 @@ export default function LabelPage() {
   }
 
   const activeMode = MODES.find((item) => item.id === mode)!;
+  const lastPayout = last?.payoutId ? payoutLinks[last.payoutId] : null;
 
   return (
     <div className="mx-auto max-w-[1320px] px-5 py-7 sm:px-8 lg:px-10 lg:py-9">
@@ -213,6 +223,17 @@ export default function LabelPage() {
               <p className="mt-3 text-sm leading-5 text-muted-foreground">{last.reason}</p>
               {last.expected && last.verdict !== "approve" && <p className="mt-2 text-xs text-muted-foreground">Reference answer: <span className="font-medium text-foreground">{last.expected}</span></p>}
               <div className="mt-4 flex items-end justify-between border-t pt-4"><span className="text-xs text-muted-foreground">{(last.latencyMs / 1000).toFixed(1)}s response</span><span className={`text-sm font-semibold ${last.payLamports !== "0" ? "text-primary" : "text-muted-foreground"}`}>{last.payLamports !== "0" ? `+${sol(last.payLamports, 3)}` : "No payout"}</span></div>
+              {last.payoutId && (
+                <div className="mt-3 border-t pt-3 text-xs">
+                  {lastPayout ? (
+                    <a href={lastPayout.url} target="_blank" rel="noreferrer" title={lastPayout.signature} className="inline-flex items-center gap-1.5 font-medium text-primary underline underline-offset-4">
+                      View transaction on Solscan <ExternalLink className="size-3" aria-hidden="true" />
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground">Confirming payout on Solana devnet…</span>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed p-5 text-sm text-muted-foreground">Your last result and reward will appear here.</div>
