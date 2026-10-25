@@ -1,94 +1,70 @@
-/**
- * Downloads a handful of Creative Commons / public-domain photos per class from Wikimedia Commons,
- * resizes them to 512px JPEGs in public/img, and writes seed/images.manifest.json.
- * Falls back to synthetic shape images if Commons is unreachable.
- */
-import { mkdirSync, writeFileSync, existsSync, readFileSync } from "node:fs";
+/** Download the manually reviewed Wikimedia Commons image set. */
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import sharp from "sharp";
 
 const spec = JSON.parse(readFileSync(resolve("seed/images.json"), "utf8")) as { classes: string[]; perClass: number };
-const outDir = resolve("public/img");
-mkdirSync(outDir, { recursive: true });
-const UA = "LabelPay-hackathon/0.1 (hackathon demo; contact via GitHub)";
+const sources = JSON.parse(readFileSync(resolve("seed/images.sources.json"), "utf8")) as Record<string, string[]>;
+const outputDirectory = resolve("public/img");
+const userAgent = "LabelPay-hackathon/0.1 (hackathon demo; contact via GitHub)";
+mkdirSync(outputDirectory, { recursive: true });
 
-const QUERIES: Record<string, string> = {
-  cat: "domestic cat portrait photo",
-  dog: "dog portrait photo",
-  bird: "bird perched photo",
-  car: "car parked street photo",
-  bicycle: "bicycle photo",
-  airplane: "airliner in flight photo",
-};
-
-async function commonsSearch(q: string, n: number): Promise<string[]> {
-  const url = new URL("https://commons.wikimedia.org/w/api.php");
-  url.search = new URLSearchParams({
-    action: "query",
-    generator: "search",
-    gsrsearch: `${q} filetype:bitmap`,
-    gsrnamespace: "6",
-    gsrlimit: String(n * 3),
-    prop: "imageinfo",
-    iiprop: "url|mime|size",
-    iiurlwidth: "640",
-    format: "json",
-  }).toString();
-  const res = await fetch(url, { headers: { "User-Agent": UA } });
-  if (!res.ok) throw new Error(`commons ${res.status}`);
-  const json = (await res.json()) as { query?: { pages?: Record<string, { imageinfo?: { thumburl?: string; mime?: string; width?: number; height?: number }[] }> } };
-  const pages = Object.values(json.query?.pages ?? {});
-  return pages
-    .map((p) => p.imageinfo?.[0])
-    .filter((i): i is NonNullable<typeof i> => !!i && !!i.thumburl && /jpeg|png/.test(i.mime ?? "") && (i.width ?? 0) >= 400)
-    .map((i) => i.thumburl!)
-    .slice(0, n);
+function downloadUrl(source: string) {
+  const marker = "/wiki/File:";
+  const position = new URL(source).pathname.indexOf(marker);
+  if (position < 0) throw new Error(`Invalid Commons source: ${source}`);
+  const filename = decodeURIComponent(new URL(source).pathname.slice(position + marker.length));
+  return `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(filename)}?width=960`;
 }
 
-async function download(url: string, file: string) {
-  const res = await fetch(url, { headers: { "User-Agent": UA } });
-  if (!res.ok) throw new Error(`download ${res.status}`);
-  const buf = Buffer.from(await res.arrayBuffer());
-  await sharp(buf).resize(512, 512, { fit: "cover" }).jpeg({ quality: 82 }).toFile(file);
-}
-
-async function synthetic(cls: string, i: number, file: string) {
-  // Fallback: a labeled placeholder so the pipeline still runs end-to-end.
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" fill="hsl(${(i * 67) % 360} 40% 85%)"/><text x="256" y="276" font-size="64" text-anchor="middle" font-family="sans-serif" fill="#222">${cls}</text></svg>`;
-  await sharp(Buffer.from(svg)).jpeg({ quality: 80 }).toFile(file);
+async function download(source: string) {
+  let lastError: Error | null = null;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    try {
+      const response = await fetch(downloadUrl(source), { headers: { "User-Agent": userAgent } });
+      if (!response.ok) throw new Error(`download failed (${response.status})`);
+      const input = Buffer.from(await response.arrayBuffer());
+      return await sharp(input).resize(512, 512, { fit: "cover" }).jpeg({ quality: 84 }).toBuffer();
+    } catch (error) {
+      lastError = error as Error;
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, attempt * 1500));
+    }
+  }
+  throw lastError;
 }
 
 async function main() {
-  const manifest: { src: string; gold: string; alt: string }[] = [];
-  for (const cls of spec.classes) {
-    let urls: string[] = [];
-    try {
-      urls = await commonsSearch(QUERIES[cls] ?? cls, spec.perClass);
-    } catch (e) {
-      console.warn(`[${cls}] commons search failed: ${(e as Error).message}`);
-    }
-    for (let i = 0; i < spec.perClass; i++) {
-      const name = `${cls}-${i + 1}.jpg`;
-      const file = resolve(outDir, name);
-      if (!existsSync(file)) {
-        const url = urls[i];
-        try {
-          if (!url) throw new Error("no url");
-          await download(url, file);
-          console.log(`ok   ${name} <- ${url}`);
-        } catch (e) {
-          console.warn(`fallback ${name}: ${(e as Error).message}`);
-          await synthetic(cls, i, file);
-        }
-      }
-      manifest.push({ src: `/img/${name}`, gold: cls, alt: `photo ${i + 1}` });
+  for (const label of spec.classes) {
+    if (sources[label]?.length !== spec.perClass) {
+      throw new Error(`${label} must have exactly ${spec.perClass} reviewed sources`);
     }
   }
-  writeFileSync(resolve("seed/images.manifest.json"), JSON.stringify(manifest, null, 2));
-  console.log(`manifest: ${manifest.length} images`);
+
+  // Download everything before replacing the current dataset.
+  const verified = new Map<string, { image: Buffer; source: string }[]>();
+  for (const label of spec.classes) {
+    const images: { image: Buffer; source: string }[] = [];
+    for (const [index, source] of sources[label].entries()) {
+      images.push({ image: await download(source), source });
+      console.log(`downloaded ${label} ${index + 1}/${spec.perClass}`);
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 250));
+    }
+    verified.set(label, images);
+  }
+
+  const manifest: { src: string; gold: string; alt: string; source: string }[] = [];
+  for (const label of spec.classes) {
+    for (const [index, candidate] of verified.get(label)!.entries()) {
+      const filename = `v2-${label}-${index + 1}.jpg`;
+      writeFileSync(resolve(outputDirectory, filename), candidate.image);
+      manifest.push({ src: `/img/${filename}`, gold: label, alt: `${label} photo`, source: candidate.source });
+    }
+  }
+  writeFileSync(resolve("seed/images.manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log(`manifest: ${manifest.length} manually reviewed images`);
 }
 
-main().catch((e) => {
-  console.error(e);
+main().catch((error) => {
+  console.error(error);
   process.exit(1);
 });

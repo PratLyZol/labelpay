@@ -27,9 +27,9 @@ async function upsertTasks(setId: string, rows: { id: string; payload: unknown; 
   for (const [i, r] of rows.entries()) {
     const gold = allGold || isGoldIndex(i, rows.length);
     await sql`
-      INSERT INTO tasks (id, set_id, payload, gold_label, is_gold)
-      VALUES (${r.id}, ${setId}, ${sql.json(r.payload as never)}, ${r.gold}, ${gold})
-      ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, gold_label = EXCLUDED.gold_label, is_gold = EXCLUDED.is_gold`;
+      INSERT INTO tasks (id, set_id, payload, gold_label, is_gold, active)
+      VALUES (${r.id}, ${setId}, ${sql.json(r.payload as never)}, ${r.gold}, ${gold}, true)
+      ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, gold_label = EXCLUDED.gold_label, is_gold = EXCLUDED.is_gold, active = true`;
   }
   console.log(`${setId}: ${rows.length} tasks (${rows.filter((_, i) => allGold || isGoldIndex(i, rows.length)).length} gold)`);
 }
@@ -43,11 +43,17 @@ async function main() {
   await upsertSet(pair.set);
   await upsertTasks(pair.set.id, pair.items.map((it, i) => ({ id: `${pair.set.id}-${i + 1}`, payload: { prompt: it.prompt, a: it.a, b: it.b }, gold: it.gold })));
 
-  const img = read<{ set: SetSpec }>("seed/images.json");
+  const img = read<{ set: SetSpec; perClass: number }>("seed/images.json");
   await upsertSet(img.set);
   if (existsSync(resolve("seed/images.manifest.json"))) {
-    const manifest = read<{ src: string; gold: string; alt: string }[]>("seed/images.manifest.json");
-    await upsertTasks(img.set.id, manifest.map((m, i) => ({ id: `${img.set.id}-${i + 1}`, payload: { src: m.src, alt: m.alt }, gold: m.gold })), true);
+    const manifest = read<{ src: string; gold: string; alt: string; source?: string }[]>("seed/images.manifest.json");
+    if (manifest.length !== img.set.options.length * img.perClass || manifest.some((item) => !img.set.options.includes(item.gold))) {
+      throw new Error("Invalid image manifest; regenerate it with `pnpm images`");
+    }
+    const rows = manifest.map((m, i) => ({ id: `${img.set.id}-v2-${i + 1}`, payload: { src: m.src, alt: m.alt }, gold: m.gold }));
+    await upsertTasks(img.set.id, rows);
+    const activeIds = rows.map((row) => row.id);
+    await sql`UPDATE tasks SET active = false WHERE set_id = ${img.set.id} AND id NOT IN ${sql(activeIds)}`;
   } else {
     console.warn("seed/images.manifest.json missing: run `pnpm images` first");
   }

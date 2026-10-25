@@ -21,7 +21,8 @@ export async function GET(req: Request) {
   const pick = async (gold: boolean) => sql<(Task & { set: TaskSet })[]>`
     SELECT t.*, to_jsonb(s) AS set
     FROM tasks t JOIN task_sets s ON s.id = t.set_id
-    WHERE t.is_gold = ${gold}
+    WHERE t.active = true
+      AND t.is_gold = ${gold}
       AND t.routing IN ('human', 'pending')
       ${typeFilter ? sql`AND s.type = ${typeFilter}` : sql``}
       AND NOT EXISTS (SELECT 1 FROM label_events le WHERE le.task_id = t.id AND le.worker = ${wallet})

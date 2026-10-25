@@ -54,7 +54,7 @@ export async function GET() {
            count(*) FILTER (WHERE routing='pending')::int AS pending,
            coalesce(avg(model_confidence) FILTER (WHERE routing='human'),0)::float AS human_avg_conf,
            coalesce(avg(model_confidence) FILTER (WHERE routing='auto'),0)::float AS auto_avg_conf
-    FROM tasks`;
+    FROM tasks WHERE active = true`;
   const audits = await sql`SELECT id::text, ts, worker, labels_reviewed, quality, trust_before, trust_after, patterns, notes, model FROM audits ORDER BY ts DESC LIMIT 8`;
 
   let treasury: { address: string | null; lamports: string | null } = { address: null, lamports: null };

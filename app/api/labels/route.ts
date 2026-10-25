@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const latencyMs = servedAt ? Date.now() - servedAt : 0;
 
   const [w] = await sql<Worker[]>`SELECT * FROM workers WHERE wallet = ${wallet}`;
-  const [task] = await sql<Task[]>`SELECT * FROM tasks WHERE id = ${taskId}`;
+  const [task] = await sql<Task[]>`SELECT * FROM tasks WHERE id = ${taskId} AND active = true`;
   if (!w || !task) return NextResponse.json({ error: "unknown task" }, { status: 404 });
   const [set] = await sql<TaskSet[]>`SELECT * FROM task_sets WHERE id = ${task.set_id}`;
   const [dup] = await sql`SELECT 1 FROM label_events WHERE task_id = ${taskId} AND worker = ${wallet} LIMIT 1`;

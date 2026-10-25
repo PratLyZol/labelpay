@@ -1,152 +1,182 @@
 [
   {
-    "src": "/img/cat-1.jpg",
+    "src": "/img/v2-cat-1.jpg",
     "gold": "cat",
-    "alt": "photo 1"
+    "alt": "cat photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Felis_catus-cat_on_snow.jpg"
   },
   {
-    "src": "/img/cat-2.jpg",
+    "src": "/img/v2-cat-2.jpg",
     "gold": "cat",
-    "alt": "photo 2"
+    "alt": "cat photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Cat_November_2010-1a.jpg"
   },
   {
-    "src": "/img/cat-3.jpg",
+    "src": "/img/v2-cat-3.jpg",
     "gold": "cat",
-    "alt": "photo 3"
+    "alt": "cat photo",
+    "source": "https://commons.wikimedia.org/wiki/File:9658Yellow-eyed_cinnamon_and_white_cats_in_the_Philippines_portrait_30.jpg"
   },
   {
-    "src": "/img/cat-4.jpg",
+    "src": "/img/v2-cat-4.jpg",
     "gold": "cat",
-    "alt": "photo 4"
+    "alt": "cat photo",
+    "source": "https://commons.wikimedia.org/wiki/File:9728Yellow-eyed_cinnamon_and_white_cats_in_the_Philippines_portrait_06.jpg"
   },
   {
-    "src": "/img/cat-5.jpg",
+    "src": "/img/v2-cat-5.jpg",
     "gold": "cat",
-    "alt": "photo 5"
+    "alt": "cat photo",
+    "source": "https://commons.wikimedia.org/wiki/File:9728Yellow-eyed_cinnamon_and_white_cats_in_the_Philippines_portrait_24.jpg"
   },
   {
-    "src": "/img/dog-1.jpg",
+    "src": "/img/v2-dog-1.jpg",
     "gold": "dog",
-    "alt": "photo 1"
+    "alt": "dog photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Yellow_Lab_at_Cedar_Lake,_Howe,_Indiana_-_4_July,_2009.jpg"
   },
   {
-    "src": "/img/dog-2.jpg",
+    "src": "/img/v2-dog-2.jpg",
     "gold": "dog",
-    "alt": "photo 2"
+    "alt": "dog photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Black%26lassie.jpg"
   },
   {
-    "src": "/img/dog-3.jpg",
+    "src": "/img/v2-dog-3.jpg",
     "gold": "dog",
-    "alt": "photo 3"
+    "alt": "dog photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Border_collie_blue_merle,_lateral_view.jpg"
   },
   {
-    "src": "/img/dog-4.jpg",
+    "src": "/img/v2-dog-4.jpg",
     "gold": "dog",
-    "alt": "photo 4"
+    "alt": "dog photo",
+    "source": "https://commons.wikimedia.org/wiki/File:My_dog_yabi.jpg"
   },
   {
-    "src": "/img/dog-5.jpg",
+    "src": "/img/v2-dog-5.jpg",
     "gold": "dog",
-    "alt": "photo 5"
+    "alt": "dog photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Lesser_Indian_Spitz_Full_Body_Image.jpg"
   },
   {
-    "src": "/img/bird-1.jpg",
+    "src": "/img/v2-bird-1.jpg",
     "gold": "bird",
-    "alt": "photo 1"
+    "alt": "bird photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Roadside_hawk_(Rupornis_magnirostris)_immature_2.jpg"
   },
   {
-    "src": "/img/bird-2.jpg",
+    "src": "/img/v2-bird-2.jpg",
     "gold": "bird",
-    "alt": "photo 2"
+    "alt": "bird photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Bee_hummingbird_(Mellisuga_helenae)_immature_male.jpg"
   },
   {
-    "src": "/img/bird-3.jpg",
+    "src": "/img/v2-bird-3.jpg",
     "gold": "bird",
-    "alt": "photo 3"
+    "alt": "bird photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Little_bee-eater_(Merops_pusillus_argutus)_Namibia.jpg"
   },
   {
-    "src": "/img/bird-4.jpg",
+    "src": "/img/v2-bird-4.jpg",
     "gold": "bird",
-    "alt": "photo 4"
+    "alt": "bird photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Common_Blackbird_(Turdus_merula_mauritanicus)_female.jpg"
   },
   {
-    "src": "/img/bird-5.jpg",
+    "src": "/img/v2-bird-5.jpg",
     "gold": "bird",
-    "alt": "photo 5"
+    "alt": "bird photo",
+    "source": "https://commons.wikimedia.org/wiki/File:White-crowned_sparrow_perched_at_Llano_Seco.jpg"
   },
   {
-    "src": "/img/car-1.jpg",
+    "src": "/img/v2-car-1.jpg",
     "gold": "car",
-    "alt": "photo 1"
+    "alt": "car photo",
+    "source": "https://commons.wikimedia.org/wiki/File:1957_Chevrolet_Bel_Air_Sport_Sedan_Sunoco_Station_Putney_VT_October_2017.jpg"
   },
   {
-    "src": "/img/car-2.jpg",
+    "src": "/img/v2-car-2.jpg",
     "gold": "car",
-    "alt": "photo 2"
+    "alt": "car photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Rambler_Classic_550-side_view_in_Vintage_%26_Classic_Car_Collection_Museum,_Udaipur.jpg"
   },
   {
-    "src": "/img/car-3.jpg",
+    "src": "/img/v2-car-3.jpg",
     "gold": "car",
-    "alt": "photo 3"
+    "alt": "car photo",
+    "source": "https://commons.wikimedia.org/wiki/File:View_of_a_side-on_view_of_the_Ford_GT40_in_the_%22For_Sale%22_section_of_the_Classic_Car_Boot_Sale_-_geograph.org.uk_-_4922818.jpg"
   },
   {
-    "src": "/img/car-4.jpg",
+    "src": "/img/v2-car-4.jpg",
     "gold": "car",
-    "alt": "photo 4"
+    "alt": "car photo",
+    "source": "https://commons.wikimedia.org/wiki/File:1964_Rambler_Classic_550_all-original_4-door_sedan_in_Woodside_Green_04of12.jpg"
   },
   {
-    "src": "/img/car-5.jpg",
+    "src": "/img/v2-car-5.jpg",
     "gold": "car",
-    "alt": "photo 5"
+    "alt": "car photo",
+    "source": "https://commons.wikimedia.org/wiki/File:2011_Holden_TM_Barina_hatchback_(2).jpg"
   },
   {
-    "src": "/img/bicycle-1.jpg",
+    "src": "/img/v2-bicycle-1.jpg",
     "gold": "bicycle",
-    "alt": "photo 1"
+    "alt": "bicycle photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Man_carrying_boxes_on_a_bicycle.jpg"
   },
   {
-    "src": "/img/bicycle-2.jpg",
+    "src": "/img/v2-bicycle-2.jpg",
     "gold": "bicycle",
-    "alt": "photo 2"
+    "alt": "bicycle photo",
+    "source": "https://commons.wikimedia.org/wiki/File:M%C3%BCnster,_Spiekerhof_--_2014_--_4495.jpg"
   },
   {
-    "src": "/img/bicycle-3.jpg",
+    "src": "/img/v2-bicycle-3.jpg",
     "gold": "bicycle",
-    "alt": "photo 3"
+    "alt": "bicycle photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Hamburg,_Fahrrad_am_Holl%C3%A4ndischen_Brookfleet_--_2016_--_2975.jpg"
   },
   {
-    "src": "/img/bicycle-4.jpg",
+    "src": "/img/v2-bicycle-4.jpg",
     "gold": "bicycle",
-    "alt": "photo 4"
+    "alt": "bicycle photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Full_English_(35169602853).jpg"
   },
   {
-    "src": "/img/bicycle-5.jpg",
+    "src": "/img/v2-bicycle-5.jpg",
     "gold": "bicycle",
-    "alt": "photo 5"
+    "alt": "bicycle photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Mountain_View_(CA,_USA),_Charleston_Road,_Google-Fahrr%C3%A4der_--_2022_--_2901.jpg"
   },
   {
-    "src": "/img/airplane-1.jpg",
+    "src": "/img/v2-airplane-1.jpg",
     "gold": "airplane",
-    "alt": "photo 1"
+    "alt": "airplane photo",
+    "source": "https://commons.wikimedia.org/wiki/File:C-141_Starlifter_contrail.jpg"
   },
   {
-    "src": "/img/airplane-2.jpg",
+    "src": "/img/v2-airplane-2.jpg",
     "gold": "airplane",
-    "alt": "photo 2"
+    "alt": "airplane photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Airplane_over_Broxted_Essex_England_-_Ryanair_approaching_Stansted.jpg"
   },
   {
-    "src": "/img/airplane-3.jpg",
+    "src": "/img/v2-airplane-3.jpg",
     "gold": "airplane",
-    "alt": "photo 3"
+    "alt": "airplane photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Vancouver_Harbour_Flight_Centre,_British_Columbia,_Canada_(July_2016).jpg"
   },
   {
-    "src": "/img/airplane-4.jpg",
+    "src": "/img/v2-airplane-4.jpg",
     "gold": "airplane",
-    "alt": "photo 4"
+    "alt": "airplane photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Airplanes_-_Types_-_Farnum_aero_bus_flying_between_Paris_and_London._Farnum_aero_bus_which_makes_daily_passenger_flights_between_Paris_and_London_-_NARA_-_17342077.jpg"
   },
   {
-    "src": "/img/airplane-5.jpg",
+    "src": "/img/v2-airplane-5.jpg",
     "gold": "airplane",
-    "alt": "photo 5"
+    "alt": "airplane photo",
+    "source": "https://commons.wikimedia.org/wiki/File:Passengers_Board_Secretary_Kerry%27s_Airplane_for_Sunrise_Flight_to_Rome.jpg"
   }
 ]

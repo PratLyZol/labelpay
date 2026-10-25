@@ -14,7 +14,7 @@ export async function GET() {
            coalesce(avg(t.model_confidence) FILTER (WHERE t.routing = 'human'), 0)::float AS avg_conf,
            ${wallet ? sql`count(le.id)::int` : sql`0`} AS done_by_me
     FROM task_sets s
-    LEFT JOIN tasks t ON t.set_id = s.id
+    LEFT JOIN tasks t ON t.set_id = s.id AND t.active = true
     ${wallet ? sql`LEFT JOIN label_events le ON le.task_id = t.id AND le.worker = ${wallet}` : sql``}
     GROUP BY s.id ORDER BY s.id`;
   return NextResponse.json({ projects: rows });

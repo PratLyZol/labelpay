@@ -43,6 +43,7 @@ export interface Task {
   model_confidence: number | null;
   model_rationale: string | null;
   routing: "pending" | "auto" | "human";
+  active: boolean;
 }
 
 export interface ServedTask {

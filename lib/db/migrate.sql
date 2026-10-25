@@ -152,7 +152,8 @@ ALTER TABLE tasks
   ADD COLUMN IF NOT EXISTS model_confidence real,
   ADD COLUMN IF NOT EXISTS model_rationale text,
   ADD COLUMN IF NOT EXISTS routing text NOT NULL DEFAULT 'pending',
-  ADD COLUMN IF NOT EXISTS routed_at timestamptz;
+  ADD COLUMN IF NOT EXISTS routed_at timestamptz,
+  ADD COLUMN IF NOT EXISTS active boolean NOT NULL DEFAULT true;
 ---
 CREATE INDEX IF NOT EXISTS tasks_routing_idx ON tasks (routing);
 ---

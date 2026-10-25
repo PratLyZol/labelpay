@@ -17,14 +17,15 @@ async function main() {
   const sets = await sql<TaskSet[]>`SELECT * FROM task_sets`;
   const byId = new Map(sets.map((s) => [s.id, s]));
   // Unrouted = never routed, or a previous attempt failed (routing set but no model label).
-  const tasks = await sql<Task[]>`SELECT * FROM tasks ${all ? sql`` : sql`WHERE routing = 'pending' OR model_label IS NULL`} ORDER BY id`;
+  const tasks = await sql<Task[]>`SELECT * FROM tasks WHERE active = true ${all ? sql`` : sql`AND (routing = 'pending' OR model_label IS NULL)`} ORDER BY id`;
   console.log(`routing ${tasks.length} tasks (threshold ${ROUTE_CONFIDENCE_THRESHOLD})`);
   let auto = 0, human = 0, failures = 0, imageFallbacks = 0, consecutiveFailures = 0;
   for (const t of tasks) {
     const set = byId.get(t.set_id)!;
     try {
       const r = await routeTask(set, t);
-      const routing = r.confidence >= ROUTE_CONFIDENCE_THRESHOLD ? "auto" : "human";
+      // Gold tasks are calibration checks and must reach a human even when the model is confident.
+      const routing = t.is_gold || r.confidence < ROUTE_CONFIDENCE_THRESHOLD ? "human" : "auto";
       if (routing === "auto") auto++;
       else human++;
       consecutiveFailures = 0;
