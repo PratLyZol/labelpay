@@ -7,6 +7,7 @@ import { WalletButton } from "@/components/wallet-button";
 const NAV = [
   { href: "/", label: "Projects" },
   { href: "/label", label: "Label tasks" },
+  { href: "/projects/new", label: "Post project" },
   { href: "/payments", label: "Payments" },
   { href: "/dashboard", label: "Quality" },
 ];

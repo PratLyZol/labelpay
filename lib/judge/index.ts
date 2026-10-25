@@ -13,6 +13,7 @@ import {
   type RoutingResult,
 } from "./prompts";
 import type { Flag } from "./monitor";
+import { loadRemoteImageAsDataUrl } from "@/lib/images/remote";
 
 /** Items the first-pass model is at least this confident about are auto-labeled and never served. */
 export const ROUTE_CONFIDENCE_THRESHOLD = Number(process.env.ROUTE_CONFIDENCE_THRESHOLD ?? "0.85");
@@ -96,10 +97,7 @@ async function imageFor(set: TaskSet, task: Task, flags: Flag[]): Promise<string
 export async function loadImageAsDataUrl(src: string): Promise<string> {
   if (src.startsWith("data:")) return src;
   if (/^https?:\/\//.test(src)) {
-    const res = await fetch(src, { signal: AbortSignal.timeout(8000) });
-    if (!res.ok) throw new Error(`image fetch ${res.status}`);
-    const buf = Buffer.from(await res.arrayBuffer());
-    return `data:${res.headers.get("content-type") ?? "image/jpeg"};base64,${buf.toString("base64")}`;
+    return loadRemoteImageAsDataUrl(src);
   }
   const file = resolve(process.cwd(), "public", src.replace(/^\//, ""));
   const buf = await readFile(file);

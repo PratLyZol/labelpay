@@ -10,6 +10,7 @@ export async function GET(req: Request) {
   const wallet = await requireWallet();
   if (!wallet) return NextResponse.json({ error: "not signed in" }, { status: 401 });
   const type = new URL(req.url).searchParams.get("type");
+  const project = new URL(req.url).searchParams.get("project");
   const typeFilter = type && ["text", "pairwise", "image"].includes(type) ? type : null;
 
   const [w] = await sql<Worker[]>`SELECT * FROM workers WHERE wallet = ${wallet}`;
@@ -22,9 +23,12 @@ export async function GET(req: Request) {
     SELECT t.*, to_jsonb(s) AS set
     FROM tasks t JOIN task_sets s ON s.id = t.set_id
     WHERE t.active = true
+      AND s.status = 'open'
+      AND (s.owner_wallet IS NULL OR s.owner_wallet <> ${wallet})
       AND t.is_gold = ${gold}
       AND t.routing IN ('human', 'pending')
       ${typeFilter ? sql`AND s.type = ${typeFilter}` : sql``}
+      ${project ? sql`AND s.id = ${project}` : sql``}
       AND NOT EXISTS (SELECT 1 FROM label_events le WHERE le.task_id = t.id AND le.worker = ${wallet})
     ORDER BY random() LIMIT 1`;
 

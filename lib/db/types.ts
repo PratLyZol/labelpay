@@ -26,6 +26,9 @@ export interface TaskSet {
   options: string[];
   pay_lamports: bigint;
   min_latency_ms: number;
+  owner_wallet?: string | null;
+  created_at?: Date;
+  status?: "open" | "closed";
 }
 
 export interface TextPayload { text: string }

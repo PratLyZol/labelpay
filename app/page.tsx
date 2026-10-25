@@ -16,12 +16,14 @@ interface Project {
   human_tasks: number;
   auto_tasks: number;
   done_by_me: number;
+  is_owner: boolean;
+  labels_submitted: number;
 }
 
 const PROJECT_META = {
   text: {
     label: "Text",
-    description: "Classify the sentiment of short reviews",
+    description: "Apply project-specific labels to text items",
     icon: FileText,
   },
   pairwise: {
@@ -56,10 +58,11 @@ const FAQ = [
 ];
 
 function ProjectAction({ project, enabled }: { project: Project; enabled: boolean }) {
+  if (project.is_owner) return <Button size="sm" disabled>Project owner</Button>;
   if (!enabled) return <Button size="sm" disabled>Start task</Button>;
 
   return (
-    <Button size="sm" nativeButton={false} render={<Link href={`/label?type=${project.type}`} />}>
+    <Button size="sm" nativeButton={false} render={<Link href={`/label?type=${project.type}&project=${encodeURIComponent(project.id)}`} />}>
       {project.done_by_me > 0 ? "Continue" : "Start task"}
       <ArrowUpRight className="size-3.5" aria-hidden="true" />
     </Button>
@@ -115,6 +118,7 @@ export default function ProjectsPage() {
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <Button size="lg" nativeButton={false} render={<Link href="/label" />}>Start a task <ArrowUpRight className="size-4" /></Button>
+            <Button size="lg" variant="outline" nativeButton={false} render={<Link href="/projects/new" />}>Post a project <ArrowUpRight className="size-4" /></Button>
             <Link href="#projects-heading" className="group inline-flex items-center gap-2 text-sm font-bold underline decoration-2 underline-offset-4">Projects <ArrowRight className="size-4 transition group-hover:translate-x-1" /></Link>
           </div>
         </div>
@@ -203,8 +207,10 @@ export default function ProjectsPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="truncate text-sm font-semibold">{project.title}</h3>
                       <span className="rounded border px-1.5 py-0.5 text-[10px] leading-none text-muted-foreground">{meta.label}</span>
+                      {project.is_owner && <span className="rounded border border-foreground bg-secondary px-1.5 py-0.5 text-[10px] font-bold leading-none">Your project</span>}
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">{meta.description}</p>
+                    {project.is_owner && <p className="mt-1 text-xs font-semibold">{project.labels_submitted} worker labels submitted</p>}
                     <details className="mt-1.5 text-xs text-muted-foreground">
                       <summary className="w-fit cursor-pointer hover:text-foreground">Guidelines</summary>
                       <p className="mt-2 max-w-lg leading-5">{project.guidelines}</p>

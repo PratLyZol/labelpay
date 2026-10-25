@@ -9,7 +9,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   title: "Taskmaster",
-  description: "Label what models can't. An agent monitors the work. Get paid in SOL per label.",
+  description: "Post data-labeling projects or complete human-feedback tasks and get paid in SOL.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

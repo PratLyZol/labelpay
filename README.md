@@ -10,6 +10,20 @@ per-worker on-chain escrow that vests or gets slashed. Every label, verdict, and
 **Tiger Data** hypertables with continuous aggregates powering the live dashboard. Deployed with
 Docker + Caddy on a **Vultr** VM.
 
+## Marketplace flow
+
+Connected users can act as either side of the marketplace:
+
+- **Requesters** open `/projects/new`, choose text or image labeling, define instructions and label
+  options, set SOL per label, and paste up to 100 items or load a text/CSV file. The API validates
+  the dataset and creates the project and its tasks in one database transaction.
+- **Workers** discover requester projects on `/`, enter a project-specific deck, submit labels, build
+  trust, and use the existing Gemini monitoring and Solana payout pipeline.
+
+The hackathon MVP pays worker rewards from the Taskmaster testnet treasury and says so in the posting
+UI. Requester-funded project escrow is intentionally not represented as complete until the wallet
+deposit flow and refund rules are implemented.
+
 ## Stack
 
 | Layer | Tech |

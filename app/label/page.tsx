@@ -37,6 +37,7 @@ const MODES = [
 export default function LabelPage() {
   const { session, refresh } = useSession();
   const [mode, setMode] = useState<Mode | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
   const [task, setTask] = useState<ServedTask | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
@@ -54,7 +55,9 @@ export default function LabelPage() {
 
   useEffect(() => {
     const requestedMode = new URLSearchParams(window.location.search).get("type");
+    const requestedProject = new URLSearchParams(window.location.search).get("project");
     if (requestedMode === "text" || requestedMode === "pairwise" || requestedMode === "image") setMode(requestedMode);
+    if (requestedProject) setProjectId(requestedProject);
   }, []);
 
   useLiveFeed("me", (event) => {
@@ -72,8 +75,10 @@ export default function LabelPage() {
   const loadNext = useCallback(async () => {
     if (!session.wallet || !mode) return;
     setError(null);
-    const query = mode === "all" ? "" : `?type=${mode}`;
-    const response = await fetch(`/api/tasks/next${query}`, { cache: "no-store" });
+    const query = new URLSearchParams();
+    if (mode !== "all") query.set("type", mode);
+    if (projectId) query.set("project", projectId);
+    const response = await fetch(`/api/tasks/next${query.size ? `?${query}` : ""}`, { cache: "no-store" });
     if (!response.ok) {
       setError((await response.json()).error ?? "Could not load a task");
       return;
@@ -86,13 +91,14 @@ export default function LabelPage() {
     }
     setDone(false);
     setTask(data.task);
-  }, [mode, session.wallet]);
+  }, [mode, projectId, session.wallet]);
 
   useEffect(() => {
     if (session.loaded && session.wallet && mode) void loadNext();
   }, [loadNext, mode, session.loaded, session.wallet]);
 
   const chooseMode = (nextMode: Mode) => {
+    setProjectId(null);
     setTask(null);
     setDone(false);
     setError(null);
@@ -104,6 +110,7 @@ export default function LabelPage() {
 
   const changeMode = () => {
     setMode(null);
+    setProjectId(null);
     setTask(null);
     setDone(false);
     setError(null);

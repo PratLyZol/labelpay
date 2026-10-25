@@ -171,3 +171,10 @@ CREATE TABLE IF NOT EXISTS audits (
 );
 ---
 ALTER TABLE workers ADD COLUMN IF NOT EXISTS last_audit_label_count int NOT NULL DEFAULT 0;
+---
+ALTER TABLE task_sets
+  ADD COLUMN IF NOT EXISTS owner_wallet text,
+  ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'open';
+---
+CREATE INDEX IF NOT EXISTS task_sets_owner_created ON task_sets (owner_wallet, created_at DESC);
